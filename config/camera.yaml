@@ -1,0 +1,9 @@
+## Config file for Camera setup.
+#
+# fps: int -> set to 30 but can be 60. Up to you really.
+# index: int -> set to 0 just because its the most common.
+# name: std::string -> set to Camera just to be generic.
+camera:
+  fps: 30
+  index: 0
+  name: "Camera"

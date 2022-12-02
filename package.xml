@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>camera_usb_driver</name>
+  <version>1.0.0</version>
+  <description>The camera_usb_driver package provides communication and functionality with usb connected cameras.</description>
+  <maintainer email="julianrendon514@gmail.com">Julian Rendon</maintainer>
+  <license>MIT</license>
+  <author email="julianrendon514@gmail.com">Julian Rendon</author>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <export>
+  </export>
+</package>
