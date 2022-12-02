@@ -14,7 +14,7 @@
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "view_video_feeds_node");
+    ros::init(argc, argv, "view_video_feeds_node".ros::init_options::AnonymousName);
     Camera video = Camera(true);   // View video feeds.
     while (ros::ok())
     {
@@ -24,7 +24,8 @@ int main(int argc, char **argv)
         if (key == 27)
         {
             ROS_INFO("Terminating video feeds.");
-            return 1;
+            cv::destroyAllWindows;   // Close out all GUI windows.
+            break;
         }
         ros::spinOnce();
     }
