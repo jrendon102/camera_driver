@@ -7,7 +7,7 @@
  */
 #include <camera_usb_driver/camera.h>
 #include <cv_bridge/cv_bridge.h>
-#include <iostream>
+#include <std_msgs/Float32.h>
 
 // Constructor.
 Camera::Camera(bool view_feeds)
@@ -19,14 +19,15 @@ Camera::Camera(bool view_feeds)
     if (view_feeds)
     {
         ROS_INFO("Waiting on incoming video feeds from [%s].", camera_name.c_str());
-        // Subscriber. Used to view video feeds.
+        // Subscriber
         image_sub = img_tr.subscribe("camera/feeds", 1, &Camera::camera_feeds_callback, this);
     }
     else
     {
         ROS_INFO("Setting up video feeds for [%s].", camera_name.c_str());
-        // Publisher. Used to send video feeds.
+        // Publishers
         image_pub = img_tr.advertise("camera/feeds", 1);
+        luminosity_pub = _nh.advertise<std_msgs::Float32>("/luminosity", 1);
         send_camera_feeds();
     }
 };
@@ -38,6 +39,35 @@ void Camera::get_parameters()
     _nh.getParam("camera/fps", camera_fps);
     _nh.getParam("camera/index", camera_index);
     _nh.getParam("camera/name", camera_name);
+};
+
+// Get luminosity value of image.
+float Camera::get_luminosity_value(cv::Mat image)
+{
+    // Convert image_frame from BGR to Grayscale.
+    cv::Mat gray_image;
+    cv::cvtColor(image, gray_image, cv::COLOR_BGR2GRAY);
+
+    // Get the row, col and total number of pixels in the image.
+    float image_rows = gray_image.rows;
+    float image_cols = gray_image.cols;
+    float image_size = image_rows * image.cols;
+    float sum_pixel_values = 0;
+
+    // Iterate over all pixel values to get the average pixel intensity.
+    // NOTE: Pixel intensities are values between 0 and 255.
+    for (int row = 0; row < image_rows; row++)
+    {
+        for (int col = 0; col < image_cols; col++)
+        {
+            // NOTE: Use unsigned int 8 because an unit8_t value ranges between 0 and 255.
+            sum_pixel_values += (int) gray_image.at<uint8_t>(row, col);
+        }
+    }
+
+    // Get average pixel intensity and normalize.
+    float luminosity_value = (sum_pixel_values / image_size) / 255;
+    return luminosity_value;
 };
 
 // Callback function to view video feeds.
@@ -65,38 +95,44 @@ void Camera::camera_feeds_callback(const sensor_msgs::ImageConstPtr &msg)
 // Convert video feeds into ROS messages.
 void Camera::send_camera_feeds()
 {
-    ros::Rate loop(camera_fps);   // Camera frames per second.
     cv::namedWindow(camera_name);
     cv::VideoCapture video_capture(camera_index, cv::CAP_V4L2);
+    ros::Rate loop(camera_fps);   // Camera frames per second.
+    sensor_msgs::ImagePtr image_msg;
+    std_msgs::Float32 luminosity_value;
 
     if (!video_capture.isOpened())
     {
         ROS_ERROR("Could not open [%s].", camera_name.c_str());
-        ros::shutdown;
     }
 
-    // Send camera feeds to create a video.
-    while (ros::ok())
+    else
     {
-        cv::Mat image_frame;
-        video_capture >> image_frame;
-
-        // Verify that the incoming frame is not empty.
-        if (image_frame.empty())
+        // Send camera feeds to create a video.
+        while (ros::ok())
         {
-            ROS_ERROR("Frame is empty! Releasing [%s].", camera_name.c_str());
-            break;
+            cv::Mat image_frame;
+            video_capture >> image_frame;
+
+            // Verify that the incoming frame is not empty.
+            if (image_frame.empty())
+            {
+                ROS_ERROR("Frame is empty! Releasing [%s].", camera_name.c_str());
+                break;
+            }
+
+            // Convert CvImage to ROS message and publish message.
+            image_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_frame).toImageMsg();
+            image_pub.publish(image_msg);
+
+            // Get luminosity value and publish message.
+            luminosity_value.data = get_luminosity_value(image_frame);
+            luminosity_pub.publish(luminosity_value);
+
+            loop.sleep();
         }
-
-        // Convert CvImage to ROS message and publish.
-        sensor_msgs::ImagePtr image_msg =
-            cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_frame).toImageMsg();
-        image_pub.publish(image_msg);
-
-        loop.sleep();
     }
-
-    video_capture.release();   // Release video capture.
-    cv::destroyAllWindows();   // Close frame.
+    // Release video capture.
+    video_capture.release();
     ROS_INFO("Terminated video feeds.");
 };

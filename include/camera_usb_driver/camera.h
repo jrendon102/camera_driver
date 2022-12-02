@@ -32,12 +32,13 @@ class Camera
     image_transport::Publisher image_pub;
     image_transport::Subscriber image_sub;
     ros::NodeHandle _nh;
+    ros::Publisher luminosity_pub;
     int camera_fps, camera_index;
     std::string camera_name;
 
   public:
     /**
-     *  Construct a new Camera object. This either creates a ROS publisher(view_feeds=False) or ROS
+     * Construct a new Camera object. This either creates a ROS publisher(view_feeds=False) or ROS
      * subscriber(view_feeds=True).
      *
      * @param view_feeds Determines whether to view the video feeds.
@@ -50,6 +51,16 @@ class Camera
      *
      */
     void get_parameters();
+
+    /**
+     * Calculates the luminosity value of the given image frame. It converts the iamge frame to gray
+     * scale the normalizes the avg pixel intensity across all pixel values. Returns luminosity
+     * value. 0 = Black image (Totally Dark), 1 = White image(Totally bright)
+     *
+     * @param frame Image received from camera.
+     * @return float
+     */
+    float get_luminosity_value(cv::Mat image);
 
     /**
      * Callback function for subscriber. Incoming ROS message is converted to BGR image to display
