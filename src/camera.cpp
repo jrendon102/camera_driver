@@ -18,7 +18,7 @@ Camera::Camera(bool view_feeds)
     // If feeds is set to true, then we want to view the video feeds.
     if (view_feeds)
     {
-        ROS_INFO("Receiving video feeds for [%s].", camera_name.c_str());
+        ROS_INFO("Waiting on incoming video feeds from [%s].", camera_name.c_str());
         // Subscriber. Used to view video feeds.
         image_sub = img_tr.subscribe("camera/feeds", 1, &Camera::camera_feeds_callback, this);
     }
@@ -49,9 +49,8 @@ void Camera::camera_feeds_callback(const sensor_msgs::ImageConstPtr &msg)
             cv_bridge::toCvShare(msg, "bgr8")->image;   // Convert ROS msg to BGR image.
         cv::imshow(camera_name, image_frame);           // Display video feeds.
 
-        // If esc key is pressed or frame is empty, close window and shutdown node.
-        char key = (char) cv::waitKey(25);
-        if (key == 27 || image_frame.empty())
+        // If frame is empty, close window and shutdown node.
+        if (image_frame.empty())
         {
             ROS_WARN("Exiting video feeds.");
             ros::shutdown();

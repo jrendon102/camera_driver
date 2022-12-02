@@ -1,5 +1,6 @@
-<!-- Launch camera feeds -->
 <?xml version="1.0"?>
+
+<!-- Launch camera feeds -->
 <launch> 
     <rosparam command="load" file="$(find camera_usb_driver)/config/camera.yaml"/>
     <node name="send_video_feeds" pkg="camera_usb_driver" type="send_video_feeds" output="screen"/>

@@ -16,6 +16,17 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "view_video_feeds_node");
     Camera video = Camera(true);   // View video feeds.
-    ros::spin();
+    while (ros::ok())
+    {
+        // ASCII code for esc key is 27.
+        // If key is pressed close window and terminate node.
+        char key = (char) cv::waitKey(27);
+        if (key == 27)
+        {
+            ROS_INFO("Terminating video feeds.");
+            return 1;
+        }
+        ros::spinOnce();
+    }
     return 0;
 }
