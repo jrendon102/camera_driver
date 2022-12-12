@@ -52,7 +52,9 @@ float Camera::get_luminosity_value(cv::Mat image)
     float image_rows = gray_image.rows;
     float image_cols = gray_image.cols;
     float image_size = image_rows * image.cols;
-    float sum_pixel_values = 0;
+
+    // Initialize sum of pixel intensities of image to 0.
+    float sum_pixel_values = 0.0;
 
     // Iterate over all pixel values to get the average pixel intensity.
     // NOTE: Pixel intensities are values between 0 and 255.
@@ -65,8 +67,11 @@ float Camera::get_luminosity_value(cv::Mat image)
         }
     }
 
-    // Get average pixel intensity and normalize.
-    float luminosity_value = (sum_pixel_values / image_size) / 255;
+    // Get average pixel intensity.
+    float avg_pixel_intensity = sum_pixel_values / image_size;
+
+    // Normalize average pixel to give value between 0 and 1.
+    float luminosity_value = (avg_pixel_intensity) / 255;
     return luminosity_value;
 };
 
