@@ -14,7 +14,7 @@
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "view_video_feeds_node".ros::init_options::AnonymousName);
+    ros::init(argc, argv, "view_video_feeds_node", ros::init_options::AnonymousName);
     Camera video = Camera(true);   // View video feeds.
     while (ros::ok())
     {

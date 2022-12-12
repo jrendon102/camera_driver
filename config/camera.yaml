@@ -5,5 +5,5 @@
 # name: std::string -> set to Camera just to be generic.
 camera:
   fps: 30
-  index: 0
+  index: -1
   name: "Camera"
