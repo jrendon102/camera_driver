@@ -36,9 +36,9 @@ Camera::Camera(bool view_feeds)
 void Camera::get_parameters()
 {
     ROS_INFO("Setting up camera parameters.");
-    _nh.getParam("camera/fps", camera_fps);
-    _nh.getParam("camera/index", camera_index);
-    _nh.getParam("camera/name", camera_name);
+    _nh.getParam("hardware/camera/fps", camera_fps);
+    _nh.getParam("hardware/camera/index", camera_index);
+    _nh.getParam("hardware/camera/name", camera_name);
 };
 
 // Get luminosity value of image.
