@@ -5,7 +5,7 @@
  * @date 2022-11-30
  * @copyright Copyright (c) 2022
  */
-#include <camera_usb_driver/camera.h>
+#include <camera_driver/camera.h>
 #include <cv_bridge/cv_bridge.h>
 #include <std_msgs/Float32.h>
 

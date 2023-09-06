@@ -1,5 +1,5 @@
 /**
- * @file send_video_feeds.cpp
+ * @file camera_server_node.cpp
  * @author Julian Rendon (jarendon10@gmail.com)
  * @brief ROS Publisher node used to send video feeds.
  *
@@ -10,11 +10,11 @@
  * @date 2022-12-01
  * @copyright Copyright (c) 2022
  */
-#include <camera_usb_driver/camera.h>
+#include <camera_driver/camera.h>
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "send_video_feeds_node");
+    ros::init(argc, argv, "camera_server_node_node");
     Camera video = Camera(false);   // Publish video feeds.
     return 0;
 }

@@ -1,92 +1,98 @@
-# CAMERA USB DRIVER
+# Camera Driver ROS Package
 
-### Overview
+## Overview
 
-ROS package that is used to communicate with usb connected cameras.
+The **Camera Driver** ROS package enables seamless communication with USB-connected cameras, enhancing your robotic system's ability to capture and work with video feeds. This package simplifies camera integration within the ROS framework.
 
-### Dependencies
+## Dependencies
 
-OpenCV 4
+The Camera Driver package relies on the following dependency:
 
-- Download, installation and set up can be found [here](http://www.codebind.com/linux-tutorials/how-to-install-opencv-in-ubuntu-20-04-lts-for-c-c/).
+- **OpenCV 4**: To install and set up OpenCV 4, refer to [this installation guide](http://www.codebind.com/linux-tutorials/how-to-install-opencv-in-ubuntu-20-04-lts-for-c-c/).
 
-### Setup
+## Setup
 
-1.  Start by creating a ROS workspace and navigate to your src/ directory. Run the following to clone the directory inside your src/ directory.
-    ```
-    git clone git@github.com:jrendon102/camera_usb_driver.git
-    ```
-2.  Build and source your workspace.
-3.  Navigate to the camera config file and fill out the configuration file.
+Follow these steps to set up and use the Camera Driver package:
 
-    - Before editing the config file find the index of your camera by running the following command on your terminal
+1. Begin by creating a ROS workspace and navigating to its `src/` directory. Use the following command to clone the Camera Driver package into your `src/` directory:
 
-      ```
-      # Will list all available webcams. (Might need to install v412-utils)
-      v412-ctl --list-devices
-      ```
-
-      Locate the camera device. If you don't know, disconnect the camera and run the command again to see which device is not listed.
-      <br>
-      Your camera index should be something along the lines of **/dev/video/number**.
-      <br>
-      It is usually just **/dev/video/0** and your index would be 0.
-
-    - Once you have that saved somewhere you can go ahead and navigate to the camera.yaml file.
-
-      ```
-      #From the top level directory of camera_usb_driver repo.
-       cd config/
-
-      # Fill out config file and save.
-       vim camera.yaml
-      ```
-
-      <mark>**NOTE:**</mark> The config file is already set to parameters that are most likely correct just for convenience.
-
-### Example
-
-1.  After setting up your ROS workspace, building and sourcing, run the following command on the machine <mark>send the video feeds from</mark>. (camera is connected to this machine).
-
-    ```
-    # Sets the parameters for camera.
-     rosparam set /hardware/camera/fps 30
-     rosparam set /hardware/camera/index -1
-     rosparam set /hardware/camera/name RPi camera
-
-    # Node to send camera feeds to stream.
-     rosrun camera_usb_driver send_video_feeds
+    ```bash
+    git clone git@github.com:jrendon102/camera_driver.git
     ```
 
-    - <mark>**_IMPORTANT_**</mark> If you are trying to access the camera feeds of a remote machine make sure when you ssh into the remote machine you use the **-X** option. This will allow users to run graphical applications on a remote server.
-      ```
-      ssh -X <remote_ip_address>
-      ```
+2. Build and source your ROS workspace.
 
-2.  Next, open a new terminal on the machine that you want to <mark>view the video feeds on </mark>.
+3. Navigate to the camera configuration file and fill out the necessary configuration:
 
-    - <mark>**_IMPORTANT_**</mark> Again, if you are trying to view feeds from a remote server you must first export the ROS MASTER URI. This will allow nodes to know where they can locate the master.
+    - Before editing the configuration file, find the index of your camera by running the following command in your terminal:
 
-      ```
-      # On remote machine run the following and copy the output.
-       echo $ROS_MASTER_URI
+        ```bash
+        # List all available webcams (You might need to install v4l2-utils).
+        v4l2-ctl --list-devices
+        ```
 
-      # On local machine run the following:
-       export ROS_MASTER_URI=<paste output here>
-      ```
+        Locate the camera device; it should resemble something like `/dev/video/number`. The index is usually just `/dev/video/0`.
 
-3.  Run the following command:
+    - Once you have the camera index, navigate to the `camera.yaml` file:
+
+        ```bash
+        # From the top-level directory of the camera_driver repo.
+        cd config/
+
+        # Edit the config file.
+        vim camera.yaml
+        ```
+
+        **Note:** The config file already contains default parameters that should work for most cases.
+
+## Example
+
+Follow these steps to run the Camera Driver package and view the video feeds:
+
+1. After setting up your ROS workspace, building, and sourcing it, run the following command on the machine that you want to capture video feeds from (where the camera is connected):
+
+    ```bash
+    # Set camera parameters.
+    rosparam set /hardware/camera/fps 30
+    rosparam set /hardware/camera/index -1
+    rosparam set /hardware/camera/name "RPi camera"
+
+    # Start the node to send camera feeds to stream.
+    rosrun camera_driver camera_server_node
     ```
-    rosrun camera_usb_driver view_video_feeds
+
+    - **Important:** If you are trying to access camera feeds from a remote machine, ensure you use the `-X` or `-Y` option when SSHing into the remote machine to enable graphical applications:
+
+        ```bash
+        ssh -X <remote_ip_address>
+        ```
+
+2. Open a new terminal on the machine where you want to view the video feeds:
+
+    - **Important:** If you are trying to view feeds from a remote server, you must export the ROS MASTER URI to allow nodes to locate the master:
+
+        ```bash
+        # On the remote machine, run the following and copy the output.
+        echo $ROS_MASTER_URI
+
+        # On the local machine, run the following:
+        export ROS_MASTER_URI=<paste output here>
+        ```
+
+3. Run the following command to display the video feeds in a new window:
+
+    ```bash
+    rosrun camera_driver camera_client_node
     ```
-    This will display the video feeds in a new window.
-    <br>
-    <mark>**NOTE:**</mark> You can terminate the window by pressing the **esc** key.
 
-### Video(s)
+    The video feeds will be displayed in a new window.
 
-**_Coming soon_**
+    - **Note:** You can terminate the window by pressing the `esc` key.
 
-### Author & Maintainer
+## Videos
+
+Coming soon...
+
+## Author & Maintainer
 
 Julian Rendon (julianrendon514@gmail.com)

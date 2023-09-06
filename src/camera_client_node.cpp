@@ -1,5 +1,5 @@
 /**
- * @file view_video_feeds.cpp
+ * @file camera_client_node.cpp
  * @author Julian Rendon (jarendon10@gmail.com)
  * @brief ROS Subscriber node to view video feeds.
  *
@@ -10,11 +10,11 @@
  * @date 2022-12-01
  * @copyright Copyright (c) 2022
  */
-#include <camera_usb_driver/camera.h>
+#include <camera_driver/camera.h>
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "view_video_feeds_node", ros::init_options::AnonymousName);
+    ros::init(argc, argv, "camera_client_node_node", ros::init_options::AnonymousName);
     Camera video = Camera(true);   // View video feeds.
     while (ros::ok())
     {

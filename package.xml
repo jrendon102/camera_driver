@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>camera_usb_driver</name>
+  <name>camera_driver</name>
   <version>1.0.0</version>
-  <description>The camera_usb_driver package provides communication and functionality with usb connected cameras.</description>
+  <description>The camera_driver package facilitates communication and provides features for cameras.</description>
   <maintainer email="julianrendon514@gmail.com">Julian Rendon</maintainer>
   <license>MIT</license>
   <author email="julianrendon514@gmail.com">Julian Rendon</author>
