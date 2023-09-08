@@ -7,7 +7,7 @@
  * converts the CvImage to a ROS message which is then published.
  *
  * @version 1.1.0
- * @date 2023-09-06
+ * @date 2023-09-09
  * @copyright Copyright (c) 2023
  */
 #include <camera_driver/camera.h>
@@ -15,6 +15,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/CompressedImage.h>
 #include <vector>
+
 class CameraServerNode
 {
   private:
@@ -27,31 +28,31 @@ class CameraServerNode
     int camera_fps;
 
   public:
-    CameraServerNode() : camera(nullptr)
+    CameraServerNode()
     {
-        ROS_DEBUG("Initializing camera setup.");
+        ROS_DEBUG("Initializing camera server node.");
 
-        if (get_params())
+        try
         {
-            ROS_DEBUG("Successfully acquired all parameters");
+            get_params();
         }
-        else
+        catch (const std::exception &e)
         {
-            ROS_ERROR("Failed to get all parameters.");
+            ROS_ERROR("Failed to initialize camera parameters: %s", e.what());
+            throw;   // Rethrow the caught exception
         }
-
         camera = std::make_unique<Camera>(camera_name, camera_type, camera_index, camera_fps);
         compressed_img_pub = nh.advertise<sensor_msgs::CompressedImage>("camera/raw_image", 10);
         send_video_stream();
-    };
+    }
 
     void send_video_stream()
     {
         ros::Rate rate(camera_fps);
         while (ros::ok())
         {
-            std::unique_ptr<cv::Mat> frame = camera->capture_frame(cv::CAP_V4L2);
-
+            std::unique_ptr<cv::Mat> frame = std::make_unique<cv::Mat>();
+            frame = camera->capture_frame();
             if (!frame)
             {
                 ROS_ERROR("Failed to capture camera frame");
@@ -65,9 +66,8 @@ class CameraServerNode
         }
     };
 
-    bool get_params()
+    void get_params()
     {
-        bool result;
         ROS_DEBUG("Fetching camera parameters...");
         std::vector<std::string> param_names{
             "hardware/camera/name",
@@ -77,16 +77,15 @@ class CameraServerNode
         };
 
         std::string camera_type;
-        result = nh.getParam(param_names[0], camera_name);
-        result = nh.getParam(param_names[1], camera_index);
-        result = nh.getParam(param_names[2], camera_type);
-        result = nh.getParam(param_names[3], camera_fps);
 
-        // Suppress compiler warning about unused result of the function call.
-        (void) CameraUtils::convertStringToCameraType(camera_type, this->camera_type);
-
-        return result;
-    };
+        if (!nh.getParam(param_names[0], camera_name) ||
+            !nh.getParam(param_names[1], camera_index) ||
+            !nh.getParam(param_names[2], camera_type) || !nh.getParam(param_names[3], camera_fps))
+        {
+            throw std::runtime_error("Failed to fetch camera parameters");
+        }
+        CameraUtils::convertStringToCameraType(camera_type, this->camera_type);
+    }
 };
 
 int main(int argc, char **argv)

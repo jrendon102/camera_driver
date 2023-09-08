@@ -8,7 +8,7 @@
  * the camera, and displaying the video.
  *
  * @version 1.1.0
- * @date 2023-09-06
+ * @date 2023-09-09
  * @copyright Copyright (c) 2023
  */
 #include <camera_driver/camera.h>
@@ -16,18 +16,15 @@
 namespace CameraUtils
 {
 
-bool convertStringToCameraType(const std::string &cameraTypeStr, CameraType &cameraType)
+void convertStringToCameraType(const std::string &cameraTypeStr, CameraType &cameraType)
 {
     if (cameraTypeMap.find(cameraTypeStr) != cameraTypeMap.end())
     {
         cameraType = cameraTypeMap[cameraTypeStr];
-        return true;   // Conversion succeeded
     }
     else
     {
-        // Handle the case where the string doesn't match any known enum value
-        cameraType = CameraType::NONE;   // Default value or appropriate error handling
-        return false;
+        throw std::invalid_argument("Invalid camera type: " + cameraTypeStr);
     }
 };
 
@@ -38,36 +35,23 @@ Camera::Camera() {}
 
 // Parameterized Constructor
 Camera::Camera(const std::string &camera_name, CameraUtils::CameraType camera_type,
-               int camera_index, int frame_rate)
-    : video_cap(nullptr)
+               int camera_index, int frame_rate, cv::VideoCaptureAPIs preferred_api)
+    : video_cap(std::make_unique<cv::VideoCapture>(camera_index, preferred_api))
 {
     this->camera_name = camera_name;
     this->camera_type = camera_type;
     this->camera_index = camera_index;
-    this->camera_frame_rate = camera_frame_rate;
-}
-
-// Destructor
-Camera::~Camera()
-{
-    // Check if the video capture is initialized
-    if (video_cap)
-    {
-        release_camera();
-    }
+    this->camera_frame_rate = frame_rate;
 }
 
 // Capture a frame from the camera
-std::unique_ptr<cv::Mat> Camera::capture_frame(cv::VideoCaptureAPIs preferred_api)
+std::unique_ptr<cv::Mat> Camera::capture_frame()
 {
-    if (!video_cap)
+    if (!video_cap->isOpened())
     {
-        video_cap = std::make_unique<cv::VideoCapture>(camera_index, preferred_api);
-        if (!video_cap->isOpened())
-        {
-            return nullptr;
-        }
+        return nullptr;
     }
+
     std::unique_ptr<cv::Mat> frame = std::make_unique<cv::Mat>();
     *video_cap >> *frame;
     if (frame->empty())

@@ -1,74 +1,80 @@
 /**
  * @file camera.h
- * @author Julian Rendon (julianrendon514@gmail.com)
  * @brief A class that facilitates communication and basic operations for a standard camera.
  *
  * This class is designed to streamline the process of capturing and displaying video feeds
  * from a camera source. It includes functionalities such as capturing frames, releasing
  * the camera, and displaying the video.
  *
+ * @date 2023-09-09
  * @version 1.1.0
- * @date 2022-11-30
- * @copyright Copyright (c) 2023
+ * @author Julian Rendon (julianrendon514@gmail.com)
+ * @note This code is under copyright (c) 2023.
  */
+#ifndef CAMERA_H
+#define CAMERA_H
+
 #include <opencv2/opencv.hpp>
 
 namespace CameraUtils
 {
 /**
- * @brief Enum to specify different types of cameras
+ * @brief Enum to specify different types of cameras.
  *
  */
-enum CameraType
+enum class CameraType
 {
-    NONE,       // Represents no camera
-    USB,        // Represents a standard USB camera
-    RPI_USB,    // Represents a USB camera compatible with Raspberry Pi
-    RPI_FLEX,   // Represents a flexible Raspberry Pi camera
-    THERMAL,    // Represents a thermal camera
-    DEPTH       // Represents a depth-sensing camera
+    USB,      /**< Standard USB camera */
+    RPI_USB,  /**< USB camera compatible with Raspberry Pi */
+    RPI_FLEX, /**< Flexible Raspberry Pi camera */
+    THERMAL,  /**< Thermal camera */
+    DEPTH     /**< Depth-sensing camera */
 };
 
 /**
- * @brief  Map from string to CameraType enum
+ * @brief Map from string to CameraType enum.
  *
  */
-std::map<std::string, CameraType> cameraTypeMap = {
-    {"NONE", CameraType::NONE},       {"USB", CameraType::USB},
-    {"RPI_USB", CameraType::RPI_USB}, {"RPI_FLEX", CameraType::RPI_FLEX},
-    {"THERMAL", CameraType::THERMAL}, {"DEPTH", CameraType::DEPTH}};
+std::map<std::string, CameraType> cameraTypeMap{
+    {"USB", CameraUtils::CameraType::USB},           /**< USB camera */
+    {"RPI_USB", CameraUtils::CameraType::RPI_USB},   /**< Raspberry Pi-compatible USB camera */
+    {"RPI_FLEX", CameraUtils::CameraType::RPI_FLEX}, /**< Raspberry Pi-compatible flexible camera */
+    {"THERMAL", CameraUtils::CameraType::THERMAL},   /**< Thermal camera */
+    {"DEPTH", CameraUtils::CameraType::DEPTH}        /**< Depth-sensing camera */
+};
+
+/**
+ * @brief Struct to hold camera info.
+ *
+ */
+struct CameraInfo
+{
+    CameraType type;  /**< Type of the camera */
+    std::string name; /**< Name of the camera */
+    int index;        /**< Index of the camera device */
+    int fps;          /**< Frames per second (FPS) */
+};
 
 /**
  * @brief Converts a string representation of a camera type to a CameraType enum value.
  *
  * @param cameraTypeStr The string representation of the camera type.
- * @param cameraType A reference to a CameraType variable where the result will be stored if the
- * conversion is successful.
- * @return true if the conversion succeeds, false otherwise.
+ * @param cameraType A reference to a CameraType variable where the result will be stored
+ *                  if the conversion is successful.
+ * @throws std::invalid_argument if the input string doesn't match any known camera type.
  */
-bool convertStringToCameraType(const std::string &cameraTypeStr, CameraType &cameraType);
+void convertStringToCameraType(const std::string &cameraTypeStr, CameraType &cameraType);
 
-/**
- * @brief Struct to hold camera info
- *
- */
-struct CameraInfo
-{
-    CameraType type;    // Type of the camera
-    std::string name;   // Name of the camera
-    int index;          // Index of the camera device
-    int fps;            // Frames per second (FPS)
-};
 }   // namespace CameraUtils
 
 class Camera
 {
   private:
-    CameraUtils::CameraType camera_type;           // Type of camera
-    std::string camera_name;                       // Name of the camera
-    int camera_index;                              // Index of the camera device
-    int camera_frame_rate;                         // Frame rate for video capture
-    std::unique_ptr<cv::VideoCapture> video_cap;   // Video capture object
+    CameraUtils::CameraType camera_type;         /**< Type of camera */
+    std::string camera_name;                     /**< Name of the camera */
+    int camera_index;                            /**< Index of the camera device */
+    int camera_frame_rate;                       /**< Frame rate for video capture */
+    std::unique_ptr<cv::VideoCapture> video_cap; /**< Video capture object */
 
   public:
     /**
@@ -80,24 +86,22 @@ class Camera
      * @brief Constructor for the Camera class.
      *
      * @param camera_name The name of the camera.
+     * @param camera_type The type of the camera (e.g., USB, IP).
      * @param camera_index The index of the camera device.
      * @param frame_rate The frame rate for video capture.
+     * @param preferred_api The preferred video capture API (default is
+     * cv::VideoCaptureAPIs::CAP_ANY).
      */
     Camera(const std::string &camera_name, CameraUtils::CameraType camera_type, int camera_index,
-           int frame_rate);
+           int frame_rate, cv::VideoCaptureAPIs preferred_api = cv::VideoCaptureAPIs::CAP_ANY);
 
     /**
-     * @brief Destructor for the Camera class.
-     */
-    ~Camera();
-
-    /**
-     * @brief Captures a frame from the camera (static).
+     * @brief Captures a frame from the camera.
      *
      * @param preferred_api The API type for video capture (default is cv::CAP_ANY).
-     * @return A pointer to the captured frame as a cv::Mat.
+     * @return A unique pointer to the captured frame as a cv::Mat, or nullptr if capture fails.
      */
-    std::unique_ptr<cv::Mat> capture_frame(cv::VideoCaptureAPIs preferred_api = cv::CAP_ANY);
+    std::unique_ptr<cv::Mat> capture_frame();
 
     /**
      * @brief Releases the camera.
@@ -113,9 +117,10 @@ class Camera
     static void display_video(const std::string &camera_name, cv::Mat &frame);
 
     /**
-     * @brief Get the camera specs object
+     * @brief Get the camera specs.
      *
      * @return camera specs as CameraInfo struct.
      */
     CameraUtils::CameraInfo get_camera_specs();
 };
+#endif
