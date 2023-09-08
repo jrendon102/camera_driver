@@ -7,27 +7,96 @@
  * feeds are displayed in a new window.
  *
  * @version 1.0.0
- * @date 2022-12-01
- * @copyright Copyright (c) 2022
+ * @date 2023-09-06
+ * @copyright Copyright (c) 2023
  */
 #include <camera_driver/camera.h>
+#include <cv_bridge/cv_bridge.h>
+#include <ros/ros.h>
+#include <sensor_msgs/CompressedImage.h>
+
+#define DEFAULT "Camera"
+
+class CameraClientNode
+{
+  private:
+    ros::NodeHandle nh;
+    ros::Subscriber compressed_img_sub;
+    sensor_msgs::ImagePtr decompressed_img;
+
+    std::string camera_name;
+    std::unique_ptr<cv::Mat> frame;
+
+  public:
+    CameraClientNode() : frame(nullptr)
+    {
+        if (nh.getParam("hardware/camera/name", camera_name))
+        {
+            ROS_INFO("Successfully acquired camera parameter.");
+        }
+        else
+        {
+            camera_name = DEFAULT;
+            ROS_WARN("Could not get camera name setting it to %s", camera_name.c_str());
+        }
+        compressed_img_sub =
+            nh.subscribe("/camera/raw_image", 10, &CameraClientNode::compressed_image_cb, this);
+    };
+
+    ~CameraClientNode()
+    {
+        if (frame)
+        {
+            cv::destroyAllWindows();
+        }
+    };
+
+    void compressed_image_cb(const sensor_msgs::CompressedImageConstPtr &img_msg)
+    {
+
+        try
+        {
+            if (!frame)
+            {
+                frame = std::make_unique<cv::Mat>();
+            }
+            decompressed_img = cv_bridge::toCvCopy(img_msg, "bgr8")->toImageMsg();
+            *frame = cv_bridge::toCvShare(decompressed_img, "bgr8")->image;
+        }
+        catch (cv_bridge::Exception &e)
+        {
+            ROS_ERROR("Unable to perform the conversion to BGR8 from the provided image "
+                      "format: [%s].",
+                      decompressed_img->encoding.c_str());
+        }
+    };
+
+    void loop()
+    {
+        ros::Rate rate(60);
+        while (ros::ok())
+        {
+            if (frame)
+            {
+                Camera::display_video(camera_name, *frame);
+            }
+            ros::spinOnce();
+            rate.sleep();
+        }
+    };
+};
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "camera_client_node_node", ros::init_options::AnonymousName);
-    Camera video = Camera(true);   // View video feeds.
-    while (ros::ok())
+    try
     {
-        // ASCII code for esc key is 27.
-        // If key is pressed close window and terminate node.
-        char key = (char) cv::waitKey(27);
-        if (key == 27)
-        {
-            ROS_INFO("Terminating video feeds.");
-            cv::destroyAllWindows;   // Close out all GUI windows.
-            break;
-        }
-        ros::spinOnce();
+        ros::init(argc, argv, "camera_client_node");
+        CameraClientNode camera;
+        camera.loop();
+    }
+    catch (ros::Exception &e)
+    {
+        ROS_ERROR("Error ocurred: %s", e.what());
     }
     return 0;
 }

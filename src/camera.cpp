@@ -1,143 +1,104 @@
 /**
  * @file camera.cpp
  * @author Julian Rendon (jarendon10@gmail.com)
- * @version 1.0.0
- * @date 2022-11-30
- * @copyright Copyright (c) 2022
+ * @brief A class that facilitates communication and basic operations for a standard camera.
+ *
+ * This class is designed to streamline the process of capturing and displaying video feeds
+ * from a camera source. It includes functionalities such as capturing frames, releasing
+ * the camera, and displaying the video.
+ *
+ * @version 1.1.0
+ * @date 2023-09-06
+ * @copyright Copyright (c) 2023
  */
 #include <camera_driver/camera.h>
-#include <cv_bridge/cv_bridge.h>
-#include <std_msgs/Float32.h>
 
-// Constructor.
-Camera::Camera(bool view_feeds)
+namespace CameraUtils
 {
-    get_parameters();   // Get the parameters
-    image_transport::ImageTransport img_tr(_nh);
 
-    // If feeds is set to true, then we want to view the video feeds.
-    if (view_feeds)
+bool convertStringToCameraType(const std::string &cameraTypeStr, CameraType &cameraType)
+{
+    if (cameraTypeMap.find(cameraTypeStr) != cameraTypeMap.end())
     {
-        ROS_INFO("Waiting on incoming video feeds from [%s].", camera_name.c_str());
-        // Subscriber
-        image_sub = img_tr.subscribe("camera/feeds", 1, &Camera::camera_feeds_callback, this);
+        cameraType = cameraTypeMap[cameraTypeStr];
+        return true;   // Conversion succeeded
     }
     else
     {
-        ROS_INFO("Setting up video feeds for [%s].", camera_name.c_str());
-        // Publishers
-        image_pub = img_tr.advertise("camera/feeds", 1);
-        luminosity_pub = _nh.advertise<std_msgs::Float32>("/luminosity", 1);
-        send_camera_feeds();
+        // Handle the case where the string doesn't match any known enum value
+        cameraType = CameraType::NONE;   // Default value or appropriate error handling
+        return false;
     }
 };
 
-// Get ROS parameters set by camera config file.
-void Camera::get_parameters()
+}   // namespace CameraUtils
+
+// Default Constructor
+Camera::Camera() {}
+
+// Parameterized Constructor
+Camera::Camera(const std::string &camera_name, CameraUtils::CameraType camera_type,
+               int camera_index, int frame_rate)
+    : video_cap(nullptr)
 {
-    ROS_INFO("Setting up camera parameters.");
-    _nh.getParam("hardware/camera/fps", camera_fps);
-    _nh.getParam("hardware/camera/index", camera_index);
-    _nh.getParam("hardware/camera/name", camera_name);
-};
+    this->camera_name = camera_name;
+    this->camera_type = camera_type;
+    this->camera_index = camera_index;
+    this->camera_frame_rate = camera_frame_rate;
+}
 
-// Get luminosity value of image.
-float Camera::get_luminosity_value(cv::Mat image)
+// Destructor
+Camera::~Camera()
 {
-    // Convert image_frame from BGR to Grayscale.
-    cv::Mat gray_image;
-    cv::cvtColor(image, gray_image, cv::COLOR_BGR2GRAY);
-
-    // Get the row, col and total number of pixels in the image.
-    float image_rows = gray_image.rows;
-    float image_cols = gray_image.cols;
-    float image_size = image_rows * image.cols;
-
-    // Initialize sum of pixel intensities of image to 0.
-    float sum_pixel_values = 0.0;
-
-    // Iterate over all pixel values to get the average pixel intensity.
-    // NOTE: Pixel intensities are values between 0 and 255.
-    for (int row = 0; row < image_rows; row++)
+    // Check if the video capture is initialized
+    if (video_cap)
     {
-        for (int col = 0; col < image_cols; col++)
+        release_camera();
+    }
+}
+
+// Capture a frame from the camera
+std::unique_ptr<cv::Mat> Camera::capture_frame(cv::VideoCaptureAPIs preferred_api)
+{
+    if (!video_cap)
+    {
+        video_cap = std::make_unique<cv::VideoCapture>(camera_index, preferred_api);
+        if (!video_cap->isOpened())
         {
-            // NOTE: Use unsigned int 8 because an unit8_t value ranges between 0 and 255.
-            sum_pixel_values += (int) gray_image.at<uint8_t>(row, col);
+            return nullptr;
         }
     }
+    std::unique_ptr<cv::Mat> frame = std::make_unique<cv::Mat>();
+    *video_cap >> *frame;
+    if (frame->empty())
+    {
+        return nullptr;
+    }
+    return frame;
+}
 
-    // Get average pixel intensity.
-    float avg_pixel_intensity = sum_pixel_values / image_size;
-
-    // Normalize average pixel to give value between 0 and 1.
-    float luminosity_value = (avg_pixel_intensity) / 255;
-    return luminosity_value;
-};
-
-// Callback function to view video feeds.
-void Camera::camera_feeds_callback(const sensor_msgs::ImageConstPtr &msg)
+// Display the video feed from the camera
+void Camera::display_video(const std::string &camera_name, cv::Mat &frame)
 {
-    try
-    {
-        cv::Mat image_frame =
-            cv_bridge::toCvShare(msg, "bgr8")->image;   // Convert ROS msg to BGR image.
-        cv::imshow(camera_name, image_frame);           // Display video feeds.
+    cv::imshow(camera_name, frame);
+    cv::waitKey(1);
+}
 
-        // If frame is empty, close window and shutdown node.
-        if (image_frame.empty())
-        {
-            ROS_WARN("Exiting video feeds.");
-            ros::shutdown();
-        }
-    }
-    catch (cv_bridge::Exception &e)
-    {
-        ROS_ERROR("Could not convert from [%s] to bgr8.", msg->encoding.c_str());
-    }
-};
-
-// Convert video feeds into ROS messages.
-void Camera::send_camera_feeds()
+// Release the camera resources
+void Camera::release_camera()
 {
-    cv::namedWindow(camera_name);
-    cv::VideoCapture video_capture(camera_index, cv::CAP_V4L2);
-    ros::Rate loop(camera_fps);   // Camera frames per second.
-    sensor_msgs::ImagePtr image_msg;
-    std_msgs::Float32 luminosity_value;
+    video_cap->release();
+    cv::destroyAllWindows();
+}
 
-    if (!video_capture.isOpened())
-    {
-        ROS_ERROR("Could not open [%s].", camera_name.c_str());
-    }
+// Get camera specs
+CameraUtils::CameraInfo Camera::get_camera_specs()
+{
+    CameraUtils::CameraInfo camera_info;
+    camera_info.name = camera_name;
+    camera_info.index = camera_index;
+    camera_info.type = camera_type;
+    camera_info.fps = camera_frame_rate;
 
-    else
-    {
-        // Send camera feeds to create a video.
-        while (ros::ok())
-        {
-            cv::Mat image_frame;
-            video_capture >> image_frame;
-
-            // Verify that the incoming frame is not empty.
-            if (image_frame.empty())
-            {
-                ROS_ERROR("Frame is empty! Releasing [%s].", camera_name.c_str());
-                break;
-            }
-
-            // Convert CvImage to ROS message and publish message.
-            image_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image_frame).toImageMsg();
-            image_pub.publish(image_msg);
-
-            // Get luminosity value and publish message.
-            luminosity_value.data = get_luminosity_value(image_frame);
-            luminosity_pub.publish(luminosity_value);
-
-            loop.sleep();
-        }
-    }
-    // Release video capture.
-    video_capture.release();
-    ROS_INFO("Terminated video feeds.");
-};
+    return camera_info;
+}
