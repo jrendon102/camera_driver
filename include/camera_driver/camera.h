@@ -6,7 +6,7 @@
  * from a camera source. It includes functionalities such as capturing frames, releasing
  * the camera, and displaying the video.
  *
- * @date 2023-09-09
+ * @date 2023-09-11
  * @version 1.1.0
  * @author Julian Rendon (julianrendon514@gmail.com)
  * @note This code is under copyright (c) 2023.
@@ -18,6 +18,16 @@
 
 namespace CameraUtils
 {
+
+/**
+ * @brief A map that defines parameter names for camera configuration.
+ *
+ */
+std::map<std::string, std::string> cameraParams = {{"NAME", "hardware/camera/name"},
+                                                   {"TYPE", "hardware/camera/type"},
+                                                   {"INDEX", "hardware/camera/index"},
+                                                   {"FPS", "hardware/camera/fps"}};
+
 /**
  * @brief Enum to specify different types of cameras.
  *
@@ -49,8 +59,8 @@ std::map<std::string, CameraType> cameraTypeMap{
  */
 struct CameraInfo
 {
-    CameraType type;  /**< Type of the camera */
     std::string name; /**< Name of the camera */
+    std::string type; /**< Type of the camera */
     int index;        /**< Index of the camera device */
     int fps;          /**< Frames per second (FPS) */
 
@@ -58,8 +68,8 @@ struct CameraInfo
     CameraInfo() {}
 
     // Parameterized Constructor
-    CameraInfo(std::string name, int index, CameraType type, int fps)
-        : name(name), index(index), type(type), fps(fps)
+    CameraInfo(std::string name, std::string type, int index, int fps)
+        : name(name), type(type), index(index), fps(fps)
     {
     }
 };
@@ -72,18 +82,27 @@ struct CameraInfo
  *                  if the conversion is successful.
  * @throws std::invalid_argument if the input string doesn't match any known camera type.
  */
-void convertStringToCameraType(const std::string &cameraTypeStr, CameraType &cameraType);
+void StrToCameraType(const std::string &cameraTypeStr, CameraType &cameraType)
+{
+    if (cameraTypeMap.find(cameraTypeStr) != cameraTypeMap.end())
+    {
+        cameraType = cameraTypeMap[cameraTypeStr];
+    }
+    else
+    {
+        throw std::invalid_argument("Invalid camera type: " + cameraTypeStr);
+    }
+};
 
 }   // namespace CameraUtils
 
 class Camera
 {
   private:
-    CameraUtils::CameraType camera_type;         /**< Type of camera */
-    std::string camera_name;                     /**< Name of the camera */
-    int camera_index;                            /**< Index of the camera device */
-    int camera_frame_rate;                       /**< Frame rate for video capture */
-    std::unique_ptr<cv::VideoCapture> video_cap; /**< Video capture object */
+    std::string cameraName; /**< Name of the camera */
+    std::string cameraType; /**< Type of camera */
+    int cameraIndex;        /**< Index of the camera device */
+    int cameraFps;          /**< Frame rate for video capture */
 
   public:
     /**
@@ -94,50 +113,39 @@ class Camera
     /**
      * @brief Constructor for the Camera class.
      *
-     * @param camera_name The name of the camera.
-     * @param camera_type The type of the camera (e.g., USB, IP).
-     * @param camera_index The index of the camera device.
-     * @param frame_rate The frame rate for video capture.
-     * @param preferred_api The preferred video capture API (default is
-     * cv::VideoCaptureAPIs::CAP_ANY).
-     */
-    Camera(const std::string &camera_name, CameraUtils::CameraType camera_type, int camera_index,
-           int frame_rate, cv::VideoCaptureAPIs preferred_api = cv::VideoCaptureAPIs::CAP_ANY);
+     * @param cameraName    Name of the camera.
+     * @param cameraType    Type of the camera (e.g., USB, IP).
+     * @param cameraIndex   Index of the camera device.
+     * @param fps           Frame per second for video capture.
 
-    /**
-     * @brief Destroy the Camera object
-     *
      */
-    ~Camera();
+    Camera(std::string cameraName, std::string cameraType, int cameraIndex, int fps);
 
     /**
      * @brief Captures a frame from the camera.
      *
-     * @param preferred_api The API type for video capture (default is cv::CAP_ANY).
-     * @return A unique pointer to the captured frame as a cv::Mat, or nullptr if capture fails.
+     * @param videoCap The video capture object to use for capturing the frame.
+     * @param index The camera index
+     * @return The captured frame as a cv::Mat
+     * @throws std::runtime_error if the camera cannot be opened or if the captured frame is empty.
      */
-    std::unique_ptr<cv::Mat> capture_frame();
-
-    /**
-     * @brief Releases the camera.
-     */
-    void release_camera();
+    static cv::Mat CaptureFrame(cv::VideoCapture &videoCap, int &index);
 
     /**
      * @brief Displays a video frame.
      *
-     * @param camera_name The name of the camera (optional).
+     * @param cameraName The name of the camera (optional).
      * @param frame The frame to display as a cv::Mat.
      * @param duration The duration (in milliseconds) to wait before the next frame is displayed
-     * (default is 1 ms).
+     *                (default is 1 ms).
      */
-    static void display_frame(const std::string &camera_name, cv::Mat &frame, int duration = 1);
+    static void DisplayFrame(const std::string &cameraName, cv::Mat &frame, int duration = 1);
 
     /**
      * @brief Get the camera specs.
      *
      * @return camera specs as CameraInfo struct.
      */
-    CameraUtils::CameraInfo get_camera_specs();
+    CameraUtils::CameraInfo GetCameraSpecs();
 };
 #endif

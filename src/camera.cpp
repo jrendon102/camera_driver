@@ -8,79 +8,48 @@
  * the camera, and displaying the video.
  *
  * @version 1.1.0
- * @date 2023-09-09
+ * @date 2023-09-11
  * @copyright Copyright (c) 2023
  */
+
 #include <camera_driver/camera.h>
 
-namespace CameraUtils
-{
-
-void convertStringToCameraType(const std::string &cameraTypeStr, CameraType &cameraType)
-{
-    if (cameraTypeMap.find(cameraTypeStr) != cameraTypeMap.end())
-    {
-        cameraType = cameraTypeMap[cameraTypeStr];
-    }
-    else
-    {
-        throw std::invalid_argument("Invalid camera type: " + cameraTypeStr);
-    }
-};
-
-}   // namespace CameraUtils
+using namespace CameraUtils;
 
 // Default Constructor
 Camera::Camera() {}
 
 // Parameterized Constructor
-Camera::Camera(const std::string &camera_name, CameraUtils::CameraType camera_type,
-               int camera_index, int frame_rate, cv::VideoCaptureAPIs preferred_api)
-    : video_cap(std::make_unique<cv::VideoCapture>(camera_index, preferred_api))
-{
-    this->camera_name = camera_name;
-    this->camera_type = camera_type;
-    this->camera_index = camera_index;
-    this->camera_frame_rate = frame_rate;
-}
-
-// Destructor
-Camera::~Camera() { release_camera(); }
+Camera::Camera(std::string cameraName, std::string cameraType, int cameraIndex, int fps) {}
 
 // Capture a frame from the camera
-std::unique_ptr<cv::Mat> Camera::capture_frame()
+cv::Mat Camera::CaptureFrame(cv::VideoCapture &videoCap, int &index)
 {
-    if (!video_cap->isOpened())
+    if (!videoCap.isOpened())
     {
-        return nullptr;
+        videoCap.release();
+        throw std::runtime_error("Could not open camera with index: " + std::to_string(index));
     }
-
-    std::unique_ptr<cv::Mat> frame = std::make_unique<cv::Mat>();
-    *video_cap >> *frame;
-    if (frame->empty())
+    cv::Mat frame;
+    videoCap >> frame;
+    if (frame.empty())
     {
-        return nullptr;
+        videoCap.release();
+        throw std::runtime_error("Frame is empty");
     }
     return frame;
 }
 
 // Display the captured frame
-void Camera::display_frame(const std::string &camera_name, cv::Mat &frame, int duration)
+void Camera::DisplayFrame(const std::string &cameraName, cv::Mat &frame, int duration)
 {
-    cv::imshow(camera_name, frame);
+    cv::imshow(cameraName, frame);
     cv::waitKey(duration);
 }
 
-// Release the camera resources
-void Camera::release_camera()
-{
-    video_cap->release();
-    cv::destroyAllWindows();
-}
-
 // Get camera specs
-CameraUtils::CameraInfo Camera::get_camera_specs()
+CameraInfo Camera::GetCameraSpecs()
 {
-    CameraUtils::CameraInfo camera_info(camera_name, camera_index, camera_type, camera_frame_rate);
+    CameraInfo camera_info(cameraName, cameraType, cameraIndex, cameraFps);
     return camera_info;
 }
