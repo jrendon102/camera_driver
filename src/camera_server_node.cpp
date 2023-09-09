@@ -40,6 +40,9 @@ class CameraServerNode
             ROS_ERROR("Failed to initialize camera parameters: %s", e.what());
             throw;   // Rethrow the caught exception
         }
+
+        // NOTE: The api is causing it to double delete but client node needs it to function
+        // better?
         camera = std::make_unique<Camera>(camera_name, camera_type, camera_index, camera_fps,
                                           cv::CAP_V4L);
         compressed_img_pub = nh.advertise<sensor_msgs::CompressedImage>("camera/raw_image", 10);
