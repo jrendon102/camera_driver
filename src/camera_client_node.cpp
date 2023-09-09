@@ -6,8 +6,8 @@
  * This subscriber node uses the Camera class to convert ROS messages to video feeds. The video
  * feeds are displayed in a new window.
  *
- * @version 1.0.0
- * @date 2023-09-06
+ * @version 1.1.0
+ * @date 2023-09-11
  * @copyright Copyright (c) 2023
  */
 #include <camera_driver/camera.h>
@@ -15,32 +15,29 @@
 #include <ros/ros.h>
 #include <sensor_msgs/CompressedImage.h>
 
-#define DEFAULT "Camera"
+#define PARAM CameraUtils::cameraParams["NAME"]
 
 class CameraClientNode
 {
   private:
     ros::NodeHandle nh;
-    ros::Subscriber compressed_img_sub;
-    sensor_msgs::ImagePtr decompressed_img;
-
-    std::string camera_name;
+    ros::Subscriber compImgSub;
+    sensor_msgs::ImagePtr compMsg;
     std::unique_ptr<cv::Mat> frame;
+    std::string cameraName;
 
   public:
     CameraClientNode() : frame(nullptr)
     {
-        if (nh.getParam("hardware/camera/name", camera_name))
+        if (!nh.getParam(PARAM, cameraName))
         {
-            ROS_INFO("Successfully acquired camera parameter.");
+            ROS_ERROR("%s::Failed to retrieve parameter:[%s]", __func__, PARAM.c_str());
+            throw std::invalid_argument("Failed to retrieve parameter: [" + PARAM + "]");
         }
-        else
-        {
-            camera_name = DEFAULT;
-            ROS_WARN("Could not get camera name setting it to %s", camera_name.c_str());
-        }
-        compressed_img_sub =
-            nh.subscribe("/camera/raw_image", 10, &CameraClientNode::compressed_image_cb, this);
+        compImgSub = nh.subscribe("/camera/raw_image/compressed", 10,
+                                  &CameraClientNode::CompressedImgCb, this);
+
+        DisplayVideo();
     };
 
     ~CameraClientNode()
@@ -51,7 +48,7 @@ class CameraClientNode
         }
     };
 
-    void compressed_image_cb(const sensor_msgs::CompressedImageConstPtr &img_msg)
+    void CompressedImgCb(const sensor_msgs::CompressedImageConstPtr &img_msg)
     {
 
         try
@@ -60,29 +57,37 @@ class CameraClientNode
             {
                 frame = std::make_unique<cv::Mat>();
             }
-            decompressed_img = cv_bridge::toCvCopy(img_msg, "bgr8")->toImageMsg();
-            *frame = cv_bridge::toCvShare(decompressed_img, "bgr8")->image;
+            compMsg = cv_bridge::toCvCopy(img_msg, "bgr8")->toImageMsg();
+            *frame = cv_bridge::toCvShare(compMsg, "bgr8")->image;
         }
         catch (cv_bridge::Exception &e)
         {
-            ROS_ERROR("Unable to perform the conversion to BGR8 from the provided image "
-                      "format: [%s].",
-                      decompressed_img->encoding.c_str());
+            ROS_ERROR("%s::Unable to perform conversion format:[%s]", __func__,
+                      compMsg->encoding.c_str());
+            throw std::runtime_error("Unable to perform the conversion from the provided image");
         }
     };
 
-    void loop()
+    void DisplayVideo()
     {
         ros::Rate rate(60);
-        while (ros::ok())
+        try
         {
-            if (frame)
+            while (ros::ok())
             {
-                Camera::display_frame(camera_name, *frame);
+                if (frame)
+                {
+                    Camera::DisplayFrame(cameraName, *frame);
+                }
+                ros::spinOnce();
+                rate.sleep();
             }
-            ros::spinOnce();
-            rate.sleep();
         }
+        catch (std::exception &e)
+        {
+            throw;   // rethrow exception
+        }
+        cv::destroyAllWindows();
     };
 };
 
@@ -92,11 +97,10 @@ int main(int argc, char **argv)
     {
         ros::init(argc, argv, "camera_client_node");
         CameraClientNode camera;
-        camera.loop();
     }
     catch (ros::Exception &e)
     {
-        ROS_ERROR("Error ocurred: %s", e.what());
+        ROS_ERROR("Exception caught: %s.", e.what());
     }
     return 0;
 }
