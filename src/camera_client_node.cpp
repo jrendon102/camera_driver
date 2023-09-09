@@ -78,7 +78,7 @@ class CameraClientNode
         {
             if (frame)
             {
-                Camera::display_video(camera_name, *frame);
+                Camera::display_frame(camera_name, *frame);
             }
             ros::spinOnce();
             rate.sleep();

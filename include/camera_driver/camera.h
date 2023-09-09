@@ -53,6 +53,15 @@ struct CameraInfo
     std::string name; /**< Name of the camera */
     int index;        /**< Index of the camera device */
     int fps;          /**< Frames per second (FPS) */
+
+    // Default Constructor
+    CameraInfo() {}
+
+    // Parameterized Constructor
+    CameraInfo(std::string name, int index, CameraType type, int fps)
+        : name(name), index(index), type(type), fps(fps)
+    {
+    }
 };
 
 /**
@@ -96,6 +105,12 @@ class Camera
            int frame_rate, cv::VideoCaptureAPIs preferred_api = cv::VideoCaptureAPIs::CAP_ANY);
 
     /**
+     * @brief Destroy the Camera object
+     *
+     */
+    ~Camera();
+
+    /**
      * @brief Captures a frame from the camera.
      *
      * @param preferred_api The API type for video capture (default is cv::CAP_ANY).
@@ -109,12 +124,14 @@ class Camera
     void release_camera();
 
     /**
-     * @brief Displays the video feed from the camera (static).
+     * @brief Displays a video frame.
      *
      * @param camera_name The name of the camera (optional).
      * @param frame The frame to display as a cv::Mat.
+     * @param duration The duration (in milliseconds) to wait before the next frame is displayed
+     * (default is 1 ms).
      */
-    static void display_video(const std::string &camera_name, cv::Mat &frame);
+    static void display_frame(const std::string &camera_name, cv::Mat &frame, int duration = 1);
 
     /**
      * @brief Get the camera specs.

@@ -44,6 +44,9 @@ Camera::Camera(const std::string &camera_name, CameraUtils::CameraType camera_ty
     this->camera_frame_rate = frame_rate;
 }
 
+// Destructor
+Camera::~Camera() { release_camera(); }
+
 // Capture a frame from the camera
 std::unique_ptr<cv::Mat> Camera::capture_frame()
 {
@@ -61,11 +64,11 @@ std::unique_ptr<cv::Mat> Camera::capture_frame()
     return frame;
 }
 
-// Display the video feed from the camera
-void Camera::display_video(const std::string &camera_name, cv::Mat &frame)
+// Display the captured frame
+void Camera::display_frame(const std::string &camera_name, cv::Mat &frame, int duration)
 {
     cv::imshow(camera_name, frame);
-    cv::waitKey(1);
+    cv::waitKey(duration);
 }
 
 // Release the camera resources
@@ -78,11 +81,6 @@ void Camera::release_camera()
 // Get camera specs
 CameraUtils::CameraInfo Camera::get_camera_specs()
 {
-    CameraUtils::CameraInfo camera_info;
-    camera_info.name = camera_name;
-    camera_info.index = camera_index;
-    camera_info.type = camera_type;
-    camera_info.fps = camera_frame_rate;
-
+    CameraUtils::CameraInfo camera_info(camera_name, camera_index, camera_type, camera_frame_rate);
     return camera_info;
 }
