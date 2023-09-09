@@ -75,6 +75,22 @@ struct CameraInfo
 };
 
 /**
+ * @brief Displays camera information, including its name, type, index, and FPS.
+ *
+ * @param camera The CameraInfo structure containing camera information.
+ */
+std::string DumpCamInfo(const CameraInfo &camera)
+{
+    std::string infoString;
+    infoString += "DUMPING CAMERA INFO\n";
+    infoString += "  Name: " + camera.name + "\n";
+    infoString += "  Type: " + camera.type + "\n";
+    infoString += "  Index: " + std::to_string(camera.index) + "\n";
+    infoString += "  FPS: " + std::to_string(camera.fps);
+    return infoString;
+}
+
+/**
  * @brief Converts a string representation of a camera type to a CameraType enum value.
  *
  * @param cameraTypeStr The string representation of the camera type.
@@ -147,5 +163,11 @@ class Camera
      * @return camera specs as CameraInfo struct.
      */
     CameraUtils::CameraInfo GetCameraSpecs();
+
+    /**
+     * @brief Prints out camera info.
+     *
+     */
+    void PrintCamInfo(const CameraUtils::CameraInfo &camera);
 };
 #endif

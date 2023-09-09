@@ -20,7 +20,10 @@ using namespace CameraUtils;
 Camera::Camera() {}
 
 // Parameterized Constructor
-Camera::Camera(std::string cameraName, std::string cameraType, int cameraIndex, int fps) {}
+Camera::Camera(std::string name, std::string type, int index, int fps)
+    : cameraName(name), cameraType(type), cameraIndex(index), cameraFps(fps)
+{
+}
 
 // Capture a frame from the camera
 cv::Mat Camera::CaptureFrame(cv::VideoCapture &videoCap, int &index)
@@ -50,6 +53,11 @@ void Camera::DisplayFrame(const std::string &cameraName, cv::Mat &frame, int dur
 // Get camera specs
 CameraInfo Camera::GetCameraSpecs()
 {
-    CameraInfo camera_info(cameraName, cameraType, cameraIndex, cameraFps);
-    return camera_info;
+    CameraInfo cameraInfo(cameraName, cameraType, cameraIndex, cameraFps);
+    return cameraInfo;
+}
+
+void Camera::PrintCamInfo(const CameraUtils::CameraInfo &camera)
+{
+    printf("%s::%s", __func__, CameraUtils::DumpCamInfo(camera).c_str());
 }
