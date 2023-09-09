@@ -31,7 +31,6 @@ class CameraServerNode
     CameraServerNode()
     {
         ROS_DEBUG("Initializing camera server node.");
-
         try
         {
             get_params();
@@ -41,7 +40,8 @@ class CameraServerNode
             ROS_ERROR("Failed to initialize camera parameters: %s", e.what());
             throw;   // Rethrow the caught exception
         }
-        camera = std::make_unique<Camera>(camera_name, camera_type, camera_index, camera_fps);
+        camera = std::make_unique<Camera>(camera_name, camera_type, camera_index, camera_fps,
+                                          cv::CAP_V4L);
         compressed_img_pub = nh.advertise<sensor_msgs::CompressedImage>("camera/raw_image", 10);
         send_video_stream();
     }
