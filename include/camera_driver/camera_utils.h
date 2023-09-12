@@ -14,6 +14,7 @@
 #define CAMERA_UTILS_H
 
 #include <map>
+#include <opencv2/opencv.hpp>
 #include <stdexcept>
 #include <string>
 
@@ -81,6 +82,17 @@ std::string DumpCamInfo(const CameraInfo &camera);
  * @throws std::invalid_argument if the input string doesn't match any known camera type.
  */
 void StrToCameraType(const std::string &cameraTypeStr, CameraType &cameraType);
+
+/**
+ * @brief Calculate and return the luminosity value of an image.
+ *
+ * This function takes an image as an input and calculates its luminosity value,
+ * which represents the average pixel intensity normalized to the range [0, 1].
+ *
+ * @param frame The grayscale input image.
+ * @return The luminosity value as a float in the range [0, 1].
+ */
+float GetLuminosityValue(cv::Mat frame);
 
 }   // namespace CameraUtils
 

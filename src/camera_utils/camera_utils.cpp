@@ -48,3 +48,26 @@ void CameraUtils::StrToCameraType(const std::string &cameraTypeStr,
         throw std::invalid_argument("Invalid camera type: " + cameraTypeStr);
     }
 }
+
+float CameraUtils::GetLuminosityValue(cv::Mat image)
+{
+    cv::Mat grayImage;
+
+    // Ensure the input image is in grayscale.
+    // Gray scale images have only 1 channel.
+    if (image.channels() != 1)
+    {
+        cv::cvtColor(image, grayImage, cv::COLOR_BGR2GRAY);
+    }
+
+    cv::Scalar meanIntensity = cv::mean(grayImage);
+
+    // The meanIntensity is a Scalar containing B, G, R, and A channels.
+    // For grayscale images, only the first channel (B) is relevant.
+    float avgPixelIntensity = static_cast<float>(meanIntensity[0]);
+
+    // Normalize average pixel intensity between [0,1].
+    float luminosityValue = avgPixelIntensity / 255.0f;
+
+    return luminosityValue;
+}
