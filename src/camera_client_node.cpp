@@ -40,17 +40,9 @@ class CameraClientNode
         DisplayVideo();
     };
 
-    ~CameraClientNode()
-    {
-        if (frame)
-        {
-            cv::destroyAllWindows();
-        }
-    };
-
     void CompressedImgCb(const sensor_msgs::CompressedImageConstPtr &img_msg)
     {
-
+        ROS_DEBUG("%s::New frame recieved.", __func__);
         try
         {
             if (!frame)
@@ -70,6 +62,10 @@ class CameraClientNode
 
     void DisplayVideo()
     {
+        bool isFirstFrame(true);
+        cv::namedWindow(cameraName, cv::WINDOW_NORMAL);
+        cv::resizeWindow(cameraName, 800, 600);
+
         ros::Rate rate(60);
         try
         {
@@ -77,7 +73,29 @@ class CameraClientNode
             {
                 if (frame)
                 {
+                    if (isFirstFrame)
+                    {
+                        ROS_INFO("%s::Displaying camera feeds for [%s]", __func__,
+                                 cameraName.c_str());
+                        isFirstFrame = false;
+                    }
+
+                    // Create a black background rectangle
+                    cv::rectangle(*frame, cv::Point(2, 1), cv::Point(175, 12), cv::Scalar(0, 0, 0),
+                                  cv::FILLED);
+
+                    // Render the text in the black background
+                    cv::putText(*frame, "Press ESC to close window", cv::Point(3, 10),
+                                cv::FONT_HERSHEY_SIMPLEX, 0.40, cv::Scalar(255, 255, 255, 1));
+
                     Camera::DisplayFrame(cameraName, *frame);
+                }
+
+                char key = cv::waitKey(30);
+                if (key == 27)   // ESC ASCII value
+                {
+                    ROS_INFO("%s::User key press terminated video.", __func__);
+                    break;
                 }
                 ros::spinOnce();
                 rate.sleep();
@@ -88,6 +106,7 @@ class CameraClientNode
             throw;   // rethrow exception
         }
         cv::destroyAllWindows();
+        ROS_DEBUG("%s::All windows destroyed.", __func__);
     };
 };
 
