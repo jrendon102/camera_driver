@@ -1,20 +1,17 @@
 /**
  * @file camera.cpp
- * @author Julian Rendon (jarendon10@gmail.com)
  * @brief A class that facilitates communication and basic operations for a standard camera.
  *
  * This class is designed to streamline the process of capturing and displaying video feeds
  * from a camera source. It includes functionalities such as capturing frames, releasing
  * the camera, and displaying the video.
  *
- * @version 1.1.0
  * @date 2023-09-11
+ * @version 1.1.0
+ * @author Julian Rendon (jarendon10@gmail.com)
  * @copyright Copyright (c) 2023
  */
-
 #include <camera_driver/camera.h>
-
-using namespace CameraUtils;
 
 // Default Constructor
 Camera::Camera() {}
@@ -38,7 +35,7 @@ cv::Mat Camera::CaptureFrame(cv::VideoCapture &videoCap, int &index)
     if (frame.empty())
     {
         videoCap.release();
-        throw std::runtime_error("Frame is empty");
+        throw std::runtime_error("Frame is empty.");
     }
     return frame;
 }

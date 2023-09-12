@@ -14,103 +14,10 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <camera_driver/camera_utils.h>
 #include <opencv2/opencv.hpp>
 
-namespace CameraUtils
-{
-
-/**
- * @brief A map that defines parameter names for camera configuration.
- *
- */
-std::map<std::string, std::string> cameraParams = {{"NAME", "hardware/camera/name"},
-                                                   {"TYPE", "hardware/camera/type"},
-                                                   {"INDEX", "hardware/camera/index"},
-                                                   {"FPS", "hardware/camera/fps"}};
-
-/**
- * @brief Enum to specify different types of cameras.
- *
- */
-enum class CameraType
-{
-    USB,      /**< Standard USB camera */
-    RPI_USB,  /**< USB camera compatible with Raspberry Pi */
-    RPI_FLEX, /**< Flexible Raspberry Pi camera */
-    THERMAL,  /**< Thermal camera */
-    DEPTH     /**< Depth-sensing camera */
-};
-
-/**
- * @brief Map from string to CameraType enum.
- *
- */
-std::map<std::string, CameraType> cameraTypeMap{
-    {"USB", CameraUtils::CameraType::USB},           /**< USB camera */
-    {"RPI_USB", CameraUtils::CameraType::RPI_USB},   /**< Raspberry Pi-compatible USB camera */
-    {"RPI_FLEX", CameraUtils::CameraType::RPI_FLEX}, /**< Raspberry Pi-compatible flexible camera */
-    {"THERMAL", CameraUtils::CameraType::THERMAL},   /**< Thermal camera */
-    {"DEPTH", CameraUtils::CameraType::DEPTH}        /**< Depth-sensing camera */
-};
-
-/**
- * @brief Struct to hold camera info.
- *
- */
-struct CameraInfo
-{
-    std::string name; /**< Name of the camera */
-    std::string type; /**< Type of the camera */
-    int index;        /**< Index of the camera device */
-    int fps;          /**< Frames per second (FPS) */
-
-    // Default Constructor
-    CameraInfo() {}
-
-    // Parameterized Constructor
-    CameraInfo(std::string name, std::string type, int index, int fps)
-        : name(name), type(type), index(index), fps(fps)
-    {
-    }
-};
-
-/**
- * @brief Displays camera information, including its name, type, index, and FPS.
- *
- * @param camera The CameraInfo structure containing camera information.
- */
-std::string DumpCamInfo(const CameraInfo &camera)
-{
-    std::string infoString;
-    infoString += "DUMPING CAMERA INFO\n";
-    infoString += "  Name: " + camera.name + "\n";
-    infoString += "  Type: " + camera.type + "\n";
-    infoString += "  Index: " + std::to_string(camera.index) + "\n";
-    infoString += "  FPS: " + std::to_string(camera.fps);
-    return infoString;
-}
-
-/**
- * @brief Converts a string representation of a camera type to a CameraType enum value.
- *
- * @param cameraTypeStr The string representation of the camera type.
- * @param cameraType A reference to a CameraType variable where the result will be stored
- *                  if the conversion is successful.
- * @throws std::invalid_argument if the input string doesn't match any known camera type.
- */
-void StrToCameraType(const std::string &cameraTypeStr, CameraType &cameraType)
-{
-    if (cameraTypeMap.find(cameraTypeStr) != cameraTypeMap.end())
-    {
-        cameraType = cameraTypeMap[cameraTypeStr];
-    }
-    else
-    {
-        throw std::invalid_argument("Invalid camera type: " + cameraTypeStr);
-    }
-};
-
-}   // namespace CameraUtils
+using namespace CameraUtils;
 
 class Camera
 {
@@ -162,12 +69,12 @@ class Camera
      *
      * @return camera specs as CameraInfo struct.
      */
-    CameraUtils::CameraInfo GetCameraSpecs();
+    CameraInfo GetCameraSpecs();
 
     /**
      * @brief Prints out camera info.
      *
      */
-    void PrintCamInfo(const CameraUtils::CameraInfo &camera);
+    void PrintCamInfo(const CameraInfo &camera);
 };
 #endif
