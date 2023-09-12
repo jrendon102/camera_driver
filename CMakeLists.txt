@@ -27,7 +27,8 @@ include_directories(
 
 add_library(
   ${PROJECT_NAME} SHARED
-  src/camera.cpp
+  src/camera_utils/camera.cpp
+  src/camera_utils/camera_utils.cpp
 )
 
 add_executable(camera_server_node src/camera_server_node.cpp)
