@@ -19,6 +19,3 @@ add_library(
   src/camera.cpp
   src/camera_utils.cpp
 )
-
-add_executable(camera_test src/camera_test.cpp)
-target_link_libraries(camera_test ${PROJECT_NAME} ${OpenCV_LIBS})
