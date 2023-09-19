@@ -1,0 +1,10 @@
+# This is the configuration file for using camera_driver from a build directory.
+# To use it, you can set the CMake variable camera_driver_DIR to the directory containing this file,
+# and then use find_package(camera_driver) to find and use the package.
+# The package will provide imported targets for accessing the library and headers.
+
+@PACKAGE_INIT@
+
+find_dependency(OpenCV 4 REQUIRED)
+
+include("${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake")

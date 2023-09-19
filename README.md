@@ -1,98 +1,116 @@
-# Camera Driver ROS Package
+# Camera Driver
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Overview
-
-The **Camera Driver** ROS package enables seamless communication with USB-connected cameras, enhancing your robotic system's ability to capture and work with video feeds. This package simplifies camera integration within the ROS framework.
+The Camera Driver Library is a simple and easy-to-use C++ library designed to interact with standard cameras. It simplifies the process of capturing frames, displaying video feeds, and obtaining camera information. This library can be used to integrate camera functionality into your projects effortlessly.
 
 ## Dependencies
 
 The Camera Driver package relies on the following dependency:
 
-- **OpenCV 4**: To install and set up OpenCV 4, refer to [this installation guide](http://www.codebind.com/linux-tutorials/how-to-install-opencv-in-ubuntu-20-04-lts-for-c-c/).
+- **OpenCV 4**
 
-## Setup
+## Building the Package
 
-Follow these steps to set up and use the Camera Driver package:
+To build the Camera Driver package, follow these steps:
 
-1. Begin by creating a ROS workspace and navigating to its `src/` directory. Use the following command to clone the Camera Driver package into your `src/` directory:
+1. **Clone the Repository**: Clone the Camera Driver repository to your local machine.
 
-    ```bash
-    git clone git@github.com:jrendon102/camera_driver.git
-    ```
+   ```bash
+   git clone https://github.com/jrendon102/ros_utils.git
+   ```
+2. **Navigate to the Project Directory**: Go to the directory where you cloned the repository.
+   
+   ```bash
+   cd camera_driver
+   ```
 
-2. Build and source your ROS workspace.
+3. **Build the Package**: Use CMake and your preferred C++ compiler to build the package.
+   
+   ```bash
+   mkdir build
+   cd build
+   cmake ../
+   cmake --build .
+   ```
 
-3. Navigate to the camera configuration file and fill out the necessary configuration:
+4. **Install the Package (Optional)**: If you want to install the package system-wide, you can use the following command:
+   
+   ```bash
+   sudo make install
+   ```
 
-    - Before editing the configuration file, find the index of your camera by running the following command in your terminal:
+After installation, the Camera Driver package should be available for other CMake projects on your system.
 
-        ```bash
-        # List all available webcams (You might need to install v4l2-utils).
-        v4l2-ctl --list-devices
-        ```
+5. **Use `find package(camera_driver)` in Your Project**: In your project's `CMakeLists.txt`, use `find_package`
+to locate the Camera Driver package:
 
-        Locate the camera device; it should resemble something like `/dev/video/number`. The index is usually just `/dev/video/0`.
+   ```bash
+   find_package(camera_driver REQUIRED)
+   ```
 
-    - Once you have the camera index, navigate to the `camera.yaml` file:
+Finally, you can now link your project's targets to the Camera Driver package, build and execute your code.
 
-        ```bash
-        # From the top-level directory of the camera_driver repo.
-        cd config/
+## Uninstalling the Package
+To uninstall the Camera Driver package, follow these steps:
 
-        # Edit the config file.
-        vim camera.yaml
-        ```
+1. **Navigate to the Project Directory**: Go to the directory where you cloned the repository.
+   
+   ```bash
+   cd camera_driver
+   ```
+2. **Uninstall the package**: Uninstall using the following command:
 
-        **Note:** The config file already contains default parameters that should work for most cases.
+   ```bash
+   cd build/
+   sudo make uninstall
+   ```
 
-## Example
+## Quick Example
 
-Follow these steps to run the Camera Driver package and view the video feeds:
+Here's a basic example of how to use the Camera Driver Library:
 
-1. After setting up your ROS workspace, building, and sourcing it, run the following command on the machine that you want to capture video feeds from (where the camera is connected):
+```cpp
+#include <iostream>
+#include <stdexcept>
+#include <camera_driver/camera.h>
 
-    ```bash
-    # Set camera parameters.
-    rosparam set /hardware/camera/fps 30
-    rosparam set /hardware/camera/index -1
-    rosparam set /hardware/camera/name "RPi camera"
+int main() {
+    // Create a Camera instance
+    Camera camera("Camera", "USB", 0, 60);
 
-    # Start the node to send camera feeds to stream.
-    rosrun camera_driver camera_server_node
-    ```
+    // Get camera specs
+    CameraInfo cameraInfo = camera.GetCameraSpecs();
 
-    - **Important:** If you are trying to access camera feeds from a remote machine, ensure you use the `-X` or `-Y` option when SSHing into the remote machine to enable graphical applications:
+    // Print camera info
+    std::cout << "Camera Info:" << std::endl;
+    std::cout << "Name: " << cameraInfo.name << std::endl;
+    std::cout << "Type: " << cameraInfo.type << std::endl;
+    std::cout << "Index: " << cameraInfo.index << std::endl;
+    std::cout << "FPS: " << cameraInfo.fps << std::endl;
 
-        ```bash
-        ssh -X <remote_ip_address>
-        ```
+    try
+    {
+        cv::VideoCapture videoCapture(0);
+        while (true)
+        {
+            // Capture a frame from the camera (assuming the camera is at index 0)
+            cv::Mat frame = camera.CaptureFrame(videoCapture, cameraInfo.index);
 
-2. Open a new terminal on the machine where you want to view the video feeds:
+            // Display the captured frame for 5 seconds
+            camera.DisplayFrame("Camera Feed", frame);
+        }
+        
+    }
+    catch(std::exception &e)
+    {
+        std::cout << "Caught Exception: " << e.what() << std::endl;
+    }
 
-    - **Important:** If you are trying to view feeds from a remote server, you must export the ROS MASTER URI to allow nodes to locate the master:
+    return 0;
+}
+```
+This example demonstrates the basic usage of the Camera Driver Library, capturing frames from a camera and displaying a video stream.
 
-        ```bash
-        # On the remote machine, run the following and copy the output.
-        echo $ROS_MASTER_URI
-
-        # On the local machine, run the following:
-        export ROS_MASTER_URI=<paste output here>
-        ```
-
-3. Run the following command to display the video feeds in a new window:
-
-    ```bash
-    rosrun camera_driver camera_client_node
-    ```
-
-    The video feeds will be displayed in a new window.
-
-    - **Note:** You can terminate the window by pressing the `esc` key.
-
-## Videos
-
-Coming soon...
-
-## Author & Maintainer
-
-Julian Rendon (julianrendon514@gmail.com)
+## Author and Maintainer
+- Julian Rendon 
+- Email: julianrendon514@gmail.com

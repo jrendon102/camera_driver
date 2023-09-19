@@ -1,38 +1,65 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(camera_driver)
-
-find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
-  image_transport
-  roscpp
-  sensor_msgs
-  std_msgs
-)
+project(camera_driver VERSION 1.0.0)
 
 find_package(
   OpenCV 4 REQUIRED
 )
 
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES camera_driver
-  CATKIN_DEPENDS roscpp std_msgs
-)
-
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
 
 add_library(
   ${PROJECT_NAME} SHARED
-  src/camera_utils/camera.cpp
-  src/camera_utils/camera_utils.cpp
+  src/camera.cpp
+  src/camera_utils.cpp
 )
 
-add_executable(camera_server_node src/camera_server_node.cpp)
-add_executable(camera_client_node src/camera_client_node.cpp)
+# Specify the installation path for the library and headers
+install(TARGETS ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
 
-target_link_libraries(camera_server_node ${PROJECT_NAME} ${catkin_LIBRARIES})
-target_link_libraries(camera_client_node ${PROJECT_NAME} ${catkin_LIBRARIES})
+# Specify headers to install
+install(DIRECTORY include/${PROJECT_NAME}
+  DESTINATION include
+)
+
+# Export package configuration if needed
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+# Configure the package configuration file using Config.cmake.in as a template.
+# This file is used by CMake to provide information about how to use the Camera Driver package.
+configure_package_config_file(
+  "${CMAKE_CURRENT_LIST_DIR}/Config.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
+)
+
+# Install the generated package configuration files.
+# These files will be installed to the specified destination directory
+# and can be used by other projects to find and use Camera Driver as a dependency.
+install(
+  FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  DESTINATION lib/cmake/${PROJECT_NAME}
+)
+
+# Create an uninstall target
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/CMakeUninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/CMakeUninstall.cmake"
+    IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/CMakeUninstall.cmake)
+endif()
