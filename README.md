@@ -1,4 +1,5 @@
 # Camera Driver
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 The Camera Driver Library is a simple and easy-to-use C++ library designed to interact with standard cameras. It simplifies the process of capturing frames, displaying video feeds, and obtaining camera information. This library can be used to integrate camera functionality into your projects effortlessly.
 
