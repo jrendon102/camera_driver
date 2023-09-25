@@ -23,7 +23,9 @@ Camera::Camera(std::string name, std::string type, int index, int fps)
 }
 
 // Capture a frame from the camera
-cv::Mat Camera::CaptureFrame(cv::VideoCapture &videoCap, int &index)
+// C-02:V4L2 not working to capture frame
+// Cannot pass videoCap obj by reference, not sure why
+cv::Mat Camera::CaptureFrame(cv::VideoCapture videoCap, int &index)
 {
     if (!videoCap.isOpened())
     {

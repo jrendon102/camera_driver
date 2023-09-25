@@ -52,7 +52,7 @@ class Camera
      * @return The captured frame as a cv::Mat
      * @throws std::runtime_error if the camera cannot be opened or if the captured frame is empty.
      */
-    static cv::Mat CaptureFrame(cv::VideoCapture &videoCap, int &index);
+    static cv::Mat CaptureFrame(cv::VideoCapture videoCap, int &index);
 
     /**
      * @brief Displays a video frame.
