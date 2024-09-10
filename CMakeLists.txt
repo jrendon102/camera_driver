@@ -1,18 +1,17 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(camera_driver VERSION 1.0.0)
+project(camera_driver VERSION 2.0.0)
 
 find_package(OpenCV 4 REQUIRED)
 find_package(OpenMP REQUIRED)
 
-
 ## Export package configuration if needed
-#include(CMakePackageConfigHelpers)
-#write_basic_package_version_file(
-#  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-#  VERSION ${PROJECT_VERSION}
-#  COMPATIBILITY AnyNewerVersion
-#)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
 #
 ## Configure the package configuration file using Config.cmake.in as a template.
 ## This file is used by CMake to provide information about how to use the Camera Driver package.
