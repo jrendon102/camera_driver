@@ -10,7 +10,7 @@
  * @author Julian Rendon (julianrendon514@gmail.com)
  * @note This code is under copyright (c) 2023.
  */
-#include <camera_driver/camera_utils.h>
+#include "camera.h"
 
 std::map<std::string, CameraUtils::CameraType> CameraUtils::cameraTypeMap{
     {"USB", CameraUtils::CameraType::USB},           /**< USB camera */

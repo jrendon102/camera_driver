@@ -11,7 +11,7 @@
  * @author Julian Rendon (jarendon10@gmail.com)
  * @copyright Copyright (c) 2023
  */
-#include <camera_driver/camera.h>
+#include "camera.h"
 
 // Default Constructor
 Camera::Camera() {}
