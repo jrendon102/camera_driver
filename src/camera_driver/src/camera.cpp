@@ -13,50 +13,85 @@
  */
 #include "camera.h"
 
-// Default Constructor
-Camera::Camera() {}
-
-// Parameterized Constructor
-Camera::Camera(std::string name, std::string type, int index, int fps)
-    : cameraName(name), cameraType(type), cameraIndex(index), cameraFps(fps)
+camera_driver::Camera::Camera()
+	: cameraName("Camera"),
+	cameraType("N/A"),
+	cameraIndex(DEFAULT_CAMERA_INDEX),
+	cameraFps(DEFAULT_CAMERA_FPS),
+	vidCap(cameraIndex)
 {
 }
 
-// Capture a frame from the camera
-// C-02:V4L2 not working to capture frame
-// Cannot pass videoCap obj by reference, not sure why
-cv::Mat Camera::CaptureFrame(cv::VideoCapture videoCap, int &index)
+camera_driver::Camera::Camera(std::string name, std::string type, int index, int fps)
+	: cameraName(std::move(name)),
+	cameraType(std::move(type)),
+	cameraIndex(index),
+	cameraFps(fps),
+	vidCap(cameraIndex)
 {
-    if (!videoCap.isOpened())
-    {
-        videoCap.release();
-        throw std::runtime_error("Could not open camera with index: " + std::to_string(index));
-    }
-    cv::Mat frame;
-    videoCap >> frame;
-    if (frame.empty())
-    {
-        videoCap.release();
-        throw std::runtime_error("Frame is empty.");
-    }
-    return frame;
 }
 
-// Display the captured frame
-void Camera::DisplayFrame(const std::string &cameraName, cv::Mat &frame, int duration)
+camera_driver::Camera::~Camera()
 {
-    cv::imshow(cameraName, frame);
-    cv::waitKey(duration);
+	if (vidCap.isOpened())
+	{
+		vidCap.release();
+		cv::destroyAllWindows();
+	}
 }
 
-// Get camera specs
-CameraInfo Camera::GetCameraSpecs()
+std::optional<cv::Mat> camera_driver::Camera::CaptureFrame()
 {
-    CameraInfo cameraInfo(cameraName, cameraType, cameraIndex, cameraFps);
-    return cameraInfo;
+	if (!vidCap.isOpened())
+	{
+		std::cerr << __func__ << "::Error: Could not open camera with index: "
+			<< cameraIndex << ".\n";
+		return std::nullopt;
+	}
+
+	cv::Mat frame;
+	vidCap >> frame;
+
+	if (frame.empty())
+	{
+		std::cerr << __func__ << "::Error: Frame is empty." << cameraIndex << "\n";
+		return std::nullopt;
+	}
+
+	return frame;
 }
 
-void Camera::PrintCamInfo(const CameraUtils::CameraInfo &camera)
+bool camera_driver::Camera::DisplayFrame(
+	cv::Mat& frame,
+	int duration,
+	const std::optional<std::string>& windowName)
 {
-    printf("%s::%s", __func__, CameraUtils::DumpCamInfo(camera).c_str());
+	auto displayName = windowName.value_or(this->cameraName);
+
+	cv::imshow(displayName, frame);
+	cv::waitKey(duration);
+
+	return cv::getWindowProperty(displayName, cv::WND_PROP_VISIBLE) != 0;
+}
+
+std::optional<camera_utils::CameraInfo> camera_driver::Camera::GetCameraSpecs() const
+{
+	return camera_utils::CameraInfo(cameraName, cameraType, cameraIndex, cameraFps);
+}
+
+std::string camera_driver::Camera::DumpCamSpecs() const
+{
+	auto camSpecs = GetCameraSpecs();
+	if (!camSpecs)
+	{
+		return "Error: Failed to retrieve camera specs.";
+	}
+
+	std::string infoString;
+	infoString += "DUMPING CAMERA INFO\n";
+	infoString += "  Name: " + camSpecs->name + "\n";
+	infoString += "  Type: " + camSpecs->type + "\n";
+	infoString += "  Index: " + std::to_string(camSpecs->index) + "\n";
+	infoString += "  FPS: " + std::to_string(camSpecs->fps);
+	return infoString;
 }
