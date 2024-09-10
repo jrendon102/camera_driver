@@ -1,12 +1,10 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.8)
 
 project(camera_driver VERSION 1.0.0)
 
 find_package(OpenCV 4 REQUIRED)
 find_package(OpenMP REQUIRED)
 
-# Define 
-set(LIBRARY_NAME ${PROJECT_NAME})
 
 ## Export package configuration if needed
 #include(CMakePackageConfigHelpers)
@@ -44,5 +42,9 @@ set(LIBRARY_NAME ${PROJECT_NAME})
 #  add_custom_target(uninstall
 #    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/CMakeUninstall.cmake)
 #endif()
+
+# Define module path for custom CMake modules and include configuration files
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
+include(GlobalConfig)
 
 add_subdirectory(src)
