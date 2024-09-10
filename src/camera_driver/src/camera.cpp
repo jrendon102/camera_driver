@@ -1,16 +1,3 @@
-/**
- * @file camera.cpp
- * @brief A class that facilitates communication and basic operations for a standard camera.
- *
- * This class is designed to streamline the process of capturing and displaying video feeds
- * from a camera source. It includes functionalities such as capturing frames, releasing
- * the camera, and displaying the video.
- *
- * @date 2023-09-11
- * @version 1.1.0
- * @author Julian Rendon (jarendon10@gmail.com)
- * @copyright Copyright (c) 2023
- */
 #include "camera.h"
 
 camera_driver::Camera::Camera()
@@ -71,6 +58,8 @@ bool camera_driver::Camera::DisplayFrame(
 	cv::imshow(displayName, frame);
 	cv::waitKey(duration);
 
+	// Return false if the window has been closed by the user; ensures loop
+	// termination if used for video streaming
 	return cv::getWindowProperty(displayName, cv::WND_PROP_VISIBLE) != 0;
 }
 

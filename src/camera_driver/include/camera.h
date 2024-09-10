@@ -1,16 +1,3 @@
-/**
- * @file camera.h
- * @brief A class that facilitates communication and basic operations for a standard camera.
- *
- * This class is designed to streamline the process of capturing and displaying video feeds
- * from a camera source. It includes functionalities such as capturing frames, releasing
- * the camera, and displaying the video.
- *
- * @date 2023-09-11
- * @version 1.1.0
- * @author Julian Rendon (julianrendon514@gmail.com)
- * @note This code is under copyright (c) 2023.
- */
 #pragma once
 
 #include "camera_utils.h"

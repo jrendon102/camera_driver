@@ -1,15 +1,3 @@
-/**
- * @file camera_utils.h
- * @brief A collection of utility functions and structures for camera-related operations.
- *
- * This header file defines the `CameraUtils` namespace, which contains utility functions
- * and structures commonly used for camera configuration and information retrieval.
- *
- * @date 2023-09-11
- * @version 1.0.0
- * @author Julian Rendon (julianrendon514@gmail.com)
- * @note This code is under copyright (c) 2023.
- */
 #pragma once
 
 #include <opencv2/opencv.hpp>
