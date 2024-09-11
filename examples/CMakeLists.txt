@@ -1,0 +1,11 @@
+set(BASIC_EXAMPLE_EXE_NAME basic_example)
+
+set(BASIC_EXAMPLE_EXE_SOURCES 
+	"${BASIC_EXAMPLE_EXE_NAME}.cpp")
+
+add_executable(${BASIC_EXAMPLE_EXE_NAME} ${BASIC_EXAMPLE_EXE_SOURCES})
+
+target_link_libraries(${BASIC_EXAMPLE_EXE_NAME} PUBLIC
+	${LIBRARY_NAME}
+	${OpenCV_LIBS}
+	OpenMP::OpenMP_CXX)
