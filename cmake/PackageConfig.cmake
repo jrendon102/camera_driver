@@ -35,7 +35,7 @@ install(
 if(NOT TARGET uninstall)
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CMakeUninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake/CMakeUninstall.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/CMakeUninstall.cmake"
     IMMEDIATE @ONLY
   )
 
