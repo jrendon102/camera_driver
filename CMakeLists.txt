@@ -23,4 +23,5 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
 include(GlobalConfig)
 include(PackageConfig)
 
+add_subdirectory(examples)
 add_subdirectory(src)
