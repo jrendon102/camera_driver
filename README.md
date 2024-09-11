@@ -1,5 +1,5 @@
 # Camera Driver
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-GNU%20GPL-blue.svg)](LICENSE)
 
 The Camera Driver Library is a simple and easy-to-use C++ library designed to interact with standard cameras. It simplifies the process of capturing frames, displaying video feeds, and obtaining camera information. This library can be used to integrate camera functionality into your projects effortlessly.
 
@@ -11,13 +11,14 @@ The Camera Driver package relies on the following dependency:
 
 ## Building the Package
 
-To build the Camera Driver package, follow these steps:
+### For Linux OS
 
 1. **Clone the Repository**: Clone the Camera Driver repository to your local machine.
 
    ```bash
-   git clone https://github.com/jrendon102/ros_utils.git
+   git clone git@github.com:jrendon102/camera_driver.git
    ```
+
 2. **Navigate to the Project Directory**: Go to the directory where you cloned the repository.
    
    ```bash
@@ -33,7 +34,7 @@ To build the Camera Driver package, follow these steps:
    cmake --build .
    ```
 
-4. **Install the Package (Optional)**: If you want to install the package system-wide, you can use the following command:
+4. **Install the Package (Optional)**: If you want to use the package with other CMake projects or system-wide, you can install it by running the following command from within the build directory:
    
    ```bash
    sudo make install
@@ -50,8 +51,50 @@ to locate the Camera Driver package:
 
 Finally, you can now link your project's targets to the Camera Driver package, build and execute your code.
 
+### For Windows OS
+1. **Open Powershell**: Make sure you use Powershell for the following commands, as the syntax may differ from Command Prompt.
+
+2. **Clone the Repository**: Clone the Camera Driver repository to your local machine.
+
+   ```powershell
+   git clone git@github.com:jrendon102/camera_driver.git
+   ```
+
+3. **Navigate to the Project Directory**: Go to the directory where you cloned the repository.
+   
+   ```powershell
+   cd camera_driver
+   ```
+
+4. **Build the Package**: Use CMake and your preferred C++ compiler to build the package. (This example uses Visual Studio 17 2022)
+   
+   ```powershell
+   mkdir build
+   cd build
+   cmake ../ --preset x64-release
+   cmake --build x64-release --config Release
+   ```
+
+5. **Install the Package (Optional)**: If you want to use the package with other CMake projects or system-wide, you can install it by running the following command from within the build directory:
+   
+   ```powershell
+   cmake --install x64-release
+   ```
+
+After installation, the Camera Driver package should be available for other CMake projects on your system.
+
+6. **Use `find package(camera_driver)` in Your Project**: In your project's `CMakeLists.txt`, use `find_package`
+to locate the Camera Driver package:
+
+   ```powershell
+   find_package(camera_driver REQUIRED)
+   ```
+
+Finally, you can now link your project's targets to the Camera Driver package, build and execute your code.
+
 ## Uninstalling the Package
-To uninstall the Camera Driver package, follow these steps:
+
+### For Linux OS
 
 1. **Navigate to the Project Directory**: Go to the directory where you cloned the repository.
    
@@ -65,51 +108,22 @@ To uninstall the Camera Driver package, follow these steps:
    sudo make uninstall
    ```
 
-## Quick Example
+### For Windows OS
+1. **Open Powershell**: Make sure you use Powershell for the following commands, as the syntax may differ from Command Prompt.
 
-Here's a basic example of how to use the Camera Driver Library:
+2. **Navigate to the Project Build Directory**: Go to the directory where you cloned the repository.
+   
+   ```powershell
+   cd camera_driver/build
+   ```
+3. **Uninstall the package**: Uninstall using the following command:
 
-```cpp
-#include <iostream>
-#include <stdexcept>
-#include <camera_driver/camera.h>
+   ```powershell
+	cmake --build x64-release --target uninstall --config Release
+   ```
 
-int main() {
-    // Create a Camera instance
-    Camera camera("Camera", "USB", 0, 60);
+## Examples
 
-    // Get camera specs
-    CameraInfo cameraInfo = camera.GetCameraSpecs();
-
-    // Print camera info
-    std::cout << "Camera Info:" << std::endl;
-    std::cout << "Name: " << cameraInfo.name << std::endl;
-    std::cout << "Type: " << cameraInfo.type << std::endl;
-    std::cout << "Index: " << cameraInfo.index << std::endl;
-    std::cout << "FPS: " << cameraInfo.fps << std::endl;
-
-    try
-    {
-        cv::VideoCapture videoCapture(0);
-        while (true)
-        {
-            // Capture a frame from the camera (assuming the camera is at index 0)
-            cv::Mat frame = camera.CaptureFrame(videoCapture, cameraInfo.index);
-
-            // Display the captured frame for 5 seconds
-            camera.DisplayFrame("Camera Feed", frame);
-        }
-        
-    }
-    catch(std::exception &e)
-    {
-        std::cout << "Caught Exception: " << e.what() << std::endl;
-    }
-
-    return 0;
-}
-```
-This example demonstrates the basic usage of the Camera Driver Library, capturing frames from a camera and displaying a video stream.
 
 ## Author and Maintainer
 - Julian Rendon 
