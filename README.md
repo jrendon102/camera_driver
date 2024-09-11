@@ -9,6 +9,10 @@ The Camera Driver package relies on the following dependency:
 
 - **OpenCV 4**
 
+## Version
+
+Current Version: 2.0.0
+
 ## Building the Package
 
 ### For Linux OS
