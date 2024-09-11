@@ -18,9 +18,8 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
 )
-
 # Specify headers to install
-install(DIRECTORY include/${PROJECT_NAME}
-  DESTINATION include
+install(DIRECTORY ../include/
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.h"
 )
-
