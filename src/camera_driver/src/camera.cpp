@@ -74,6 +74,7 @@ void camera_driver::Camera::DumpCamSpecs() const
 	if (!camSpecs)
 	{
 		std::cerr << __func__ << "::Error: Failed to retrieve camera specs.\n";
+		return;
 	}
 
 	std::string infoString;
