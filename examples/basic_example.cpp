@@ -9,7 +9,7 @@ int main()
 	{
 		camera_driver::Camera camera;
 
-		std::cout << camera.DumpCamSpecs() << "\n";
+		camera.DumpCamSpecs();
 
 		auto frame = camera.CaptureFrame();
 		if (!frame)
@@ -24,14 +24,14 @@ int main()
 			return -1;
 		}
 	}
-	catch (const std::exception& e)
+	catch (const std::exception &e)
 	{
 		std::cerr << "Exception caught: " << e.what() << "\n";
 		return -1;
 	}
 	catch (...)
 	{
-		std::cerr << "Unknon exception caught\n";
+		std::cerr << "Unknown exception caught\n";
 		std::terminate();
 	}
 

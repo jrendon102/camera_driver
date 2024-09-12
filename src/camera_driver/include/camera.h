@@ -4,8 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 
-constexpr int DEFAULT_CAMERA_INDEX = 0;
-constexpr int DEFAULT_CAMERA_FPS = 30;
+constexpr int DEFAULT_DURATION_MS = 3000;
 
 namespace camera_driver
 {
@@ -18,16 +17,28 @@ namespace camera_driver
 
 		~Camera();
 
-		std::optional<cv::Mat> CaptureFrame();
+		// Disable copy constructor - copying Camera is not allowed.
+		Camera(const Camera &) = delete;
+
+		// Disable copy assignment - prevents copying of Camera.
+		Camera &operator=(const Camera &) = delete;
+
+		// Enable move constructor - allows moving resources efficiently.
+		Camera(Camera &&) noexcept = default;
+
+		// Enable move assignment - allows move assignment for resource transfer.
+		Camera &operator=(Camera &&) noexcept = default;
+
+		[[nodiscard]] std::optional<cv::Mat> CaptureFrame();
 
 		bool DisplayFrame(
-			cv::Mat& frame,
-			int duration = 3000,
-			const std::optional<std::string>& windowName = std::nullopt);
+			cv::Mat &frame,
+			int duration = DEFAULT_DURATION_MS,
+			const std::optional<std::string> &windowName = std::nullopt);
 
-		std::optional<camera_utils::CameraInfo> GetCameraSpecs() const;
+		[[nodiscard]] std::optional<camera_utils::CameraInfo> GetCameraSpecs() const;
 
-		std::string DumpCamSpecs() const;
+		void DumpCamSpecs() const;
 
 	private:
 		std::string cameraName;
@@ -37,4 +48,4 @@ namespace camera_driver
 		cv::VideoCapture vidCap;
 	};
 
-}	// namespace camera_driver
+} // namespace camera_driver
