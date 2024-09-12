@@ -1,6 +1,6 @@
 #include "camera.h"
 
-std::optional<float> camera_utils::GetLuminosity(cv::Mat& image)
+std::optional<float> camera_utils::GetLuminosity(cv::Mat &image)
 {
     if (image.empty())
     {

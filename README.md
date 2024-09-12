@@ -56,7 +56,7 @@ to locate the Camera Driver package:
 Finally, you can now link your project's targets to the Camera Driver package, build and execute your code.
 
 ### For Windows OS
-1. **Open Powershell**: Make sure you use Powershell for the following commands, as the syntax may differ from Command Prompt.
+1. **Open Developer Command Prompt or PowerShell for VS 2022**: Ensure you use the specialized command prompt or PowerShell for Visual Studio 2022 as it automatically sets up the environment for using cl.exe and other related tools.
 
 2. **Clone the Repository**: Clone the Camera Driver repository to your local machine.
 
@@ -113,7 +113,7 @@ Finally, you can now link your project's targets to the Camera Driver package, b
    ```
 
 ### For Windows OS
-1. **Open Powershell**: Make sure you use Powershell for the following commands, as the syntax may differ from Command Prompt.
+1. **Open Developer Command Prompt or PowerShell for VS 2022**: Ensure you use the specialized command prompt or PowerShell for Visual
 
 2. **Navigate to the Project Build Directory**: Go to the directory where you cloned the repository.
    
