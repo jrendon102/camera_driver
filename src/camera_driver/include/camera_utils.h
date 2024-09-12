@@ -4,8 +4,8 @@
 #include <optional>
 #include <string>
 
-constexpr float DEFAULT_CAMERA_FPS = 30;
-constexpr float DEFAULT_CAMERA_INDEX = 0;
+constexpr int DEFAULT_CAMERA_FPS = 30;
+constexpr int DEFAULT_CAMERA_INDEX = 0;
 constexpr float MAX_PIXEL_INTENSITY = 255.0f;
 
 namespace camera_utils
