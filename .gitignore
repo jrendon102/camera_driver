@@ -366,5 +366,6 @@ FodyWeavers.xsd
 .vscode/
 build/*
 html/*
+install/*
 logs/*
 out/*
