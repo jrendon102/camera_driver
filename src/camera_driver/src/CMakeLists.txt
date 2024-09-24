@@ -20,6 +20,6 @@ install(TARGETS ${PROJECT_NAME}
 )
 # Specify headers to install
 install(DIRECTORY ../include/
-    DESTINATION include
+    DESTINATION include/${PROJECT_NAME}
     FILES_MATCHING PATTERN "*.h"
 )
