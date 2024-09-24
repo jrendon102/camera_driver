@@ -11,7 +11,7 @@ The Camera Driver package relies on the following dependency:
 
 ## Version
 
-Current Version: 2.0.0
+Current Version: 2.0.1
 
 ## Building the Package
 
