@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(camera_driver VERSION 2.0.0)
+project(camera_driver VERSION 2.0.1)
 
 find_package(OpenCV 4 REQUIRED)
 find_package(OpenMP REQUIRED)
