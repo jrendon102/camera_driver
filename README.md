@@ -61,7 +61,7 @@ Finally, you can now link your project's targets to the Camera Driver package, b
 2. **Clone the Repository**: Clone the Camera Driver repository to your local machine.
 
    ```powershell
-   git clone git@github.com:jrendon102/camera_driver.git
+   git clone --recursive git@github.com:jrendon102/camera_driver.git
    ```
 
 3. **Navigate to the Project Directory**: Go to the directory where you cloned the repository.
@@ -131,5 +131,5 @@ Finally, you can now link your project's targets to the Camera Driver package, b
 ### For Windows OS
 After building the project, you need to navigate to the `build/x64-release/examples/Release` directory to find the `basic_example.exe` file. You can run the executable from this location to see the example in action.
 ## Author and Maintainer
-- Julian Rendon 
+- Julian A. Rendon 
 - Email: julianrendon514@gmail.com
